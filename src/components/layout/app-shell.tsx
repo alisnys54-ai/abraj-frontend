@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen bg-muted">
       <aside className="w-60 flex-none bg-primary flex flex-col">
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-white/10">
-          <div className="h-8 w-8 rounded-md bg-white/10" />
+          <img src="/logo-icon.png" alt="Abraj Al Yasir" className="h-9 w-auto" />
           <span className="text-sm font-medium text-white">Abraj Al Yasir</span>
         </div>
         <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-0.5">

@@ -29,8 +29,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-primary flex items-center justify-center p-8">
       <div className="w-full max-w-[420px]">
         <div className="text-center mb-7">
-          <div className="mx-auto mb-3 h-14 w-14 rounded-xl bg-white/10" />
-          <div className="text-white text-lg font-medium">Abraj Al Yasir</div>
+          <img src="/logo.png" alt="Abraj Al Yasir Contracting Company" className="mx-auto mb-3 h-24 w-auto" />
           <div className="text-white/50 text-xs mt-1">Task Management</div>
         </div>
         <div className="bg-white rounded-2xl p-7 shadow-2xl">
