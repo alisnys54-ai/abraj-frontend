@@ -21,6 +21,16 @@ export function useUsers(params: Record<string, unknown> = {}) {
 export function useRoles() {
   return useQuery({ queryKey: ['roles'], queryFn: async () => (await api.get('/roles')).data });
 }
+export function usePermissionCatalog() {
+  return useQuery({ queryKey: ['permissions-catalog'], queryFn: async () => (await api.get('/permissions')).data, staleTime: Infinity });
+}
+export function useRolePermissions(roleId: string | null) {
+  return useQuery({
+    queryKey: ['role-permissions', roleId],
+    queryFn: async () => (await api.get(`/roles/${roleId}/permissions`)).data,
+    enabled: !!roleId,
+  });
+}
 export function useNotifications(params: Record<string, unknown> = {}) {
   return useQuery({ queryKey: ['notifications', params], queryFn: async () => (await api.get('/notifications', { params })).data, refetchInterval: 20_000 });
 }

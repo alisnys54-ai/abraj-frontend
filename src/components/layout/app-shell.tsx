@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, ListTodo, KanbanSquare, CalendarDays, Building2, IdCard, Users, Bell, BarChart3, User as UserIcon, Settings as SettingsIcon, ScrollText, LogOut } from 'lucide-react';
+import { LayoutDashboard, ListTodo, KanbanSquare, CalendarDays, Building2, IdCard, Users, ShieldCheck, Bell, BarChart3, User as UserIcon, Settings as SettingsIcon, ScrollText, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { usePermission } from '@/hooks/use-permission';
 import { Avatar } from '@/components/ui/avatar';
@@ -16,6 +16,7 @@ const NAV = [
   { href: '/departments', label: 'Departments', icon: Building2, module: 'departments', action: 'view' },
   { href: '/positions', label: 'Positions', icon: IdCard, module: 'positions', action: 'view' },
   { href: '/users', label: 'Users', icon: Users, module: 'users', action: 'view' },
+  { href: '/roles', label: 'Roles', icon: ShieldCheck, module: 'roles', action: 'view' },
   { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/reports', label: 'Reports', icon: BarChart3, module: 'reports', action: 'view' },
   { href: '/audit-logs', label: 'Audit Logs', icon: ScrollText, module: 'activity-logs', action: 'view' },
