@@ -7,10 +7,12 @@ import { useTasks } from '@/hooks/use-tasks';
 import { useTaskStatuses } from '@/hooks/use-resources';
 import { api, apiErrorMessage } from '@/lib/api-client';
 import { useToast } from '@/components/ui/toast';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { PriorityBadge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function KanbanPage() {
+  const { t } = useLocale();
   const router = useRouter();
   const qc = useQueryClient();
   const { push } = useToast();
@@ -23,7 +25,7 @@ export default function KanbanPage() {
     try {
       await api.post(`/tasks/${dragTaskId}/status`, { to_status_id: toStatusId });
       qc.invalidateQueries({ queryKey: ['tasks'] });
-      push('Status updated');
+      push(t('tasks.statusUpdated'));
     } catch (e) {
       push(apiErrorMessage(e), 'error');
     }
@@ -33,7 +35,7 @@ export default function KanbanPage() {
   return (
     <RequireAuth>
       <div className="max-w-full">
-        <h1 className="text-xl font-medium mb-5">Kanban</h1>
+        <h1 className="text-xl font-medium mb-5">{t('nav.kanban')}</h1>
         {isLoading && <Skeleton className="h-64" />}
         {statuses && data && (
           <div className="flex gap-4 overflow-x-auto pb-4">

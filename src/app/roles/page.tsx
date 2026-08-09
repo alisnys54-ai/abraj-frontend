@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { RequireAuth } from '@/components/layout/require-auth';
 import { useRoles, usePermissionCatalog, useRolePermissions } from '@/hooks/use-resources';
 import { usePermission } from '@/hooks/use-permission';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { api, apiErrorMessage } from '@/lib/api-client';
 import { useToast } from '@/components/ui/toast';
 import { createRoleSchema, type CreateRoleInput, type RoleRow, PERMISSION_MODULES, PERMISSION_ACTIONS } from '@/lib/schemas/role';
@@ -19,15 +20,10 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/states';
 
-const SCOPE_OPTIONS = [
-  { value: 'own', label: 'Own only' },
-  { value: 'department', label: 'Department' },
-  { value: 'all', label: 'All (company-wide)' },
-] as const;
-
 type Scope = 'all' | 'department' | 'own';
 
 function ManagePermissions({ role, onClose }: { role: RoleRow; onClose: () => void }) {
+  const { t } = useLocale();
   const { data: catalog, isLoading: catalogLoading } = usePermissionCatalog();
   const { data: current, isLoading: currentLoading } = useRolePermissions(role.id);
   const { push } = useToast();
@@ -35,6 +31,12 @@ function ManagePermissions({ role, onClose }: { role: RoleRow; onClose: () => vo
   const [saving, setSaving] = useState(false);
   const [grants, setGrants] = useState<Record<string, Set<string>>>({});
   const [scopeByModule, setScopeByModule] = useState<Record<string, Scope>>({});
+
+  const SCOPE_OPTIONS: { value: Scope; label: string }[] = [
+    { value: 'own', label: t('roles.scopeOwn') },
+    { value: 'department', label: t('roles.scopeDepartment') },
+    { value: 'all', label: t('roles.scopeAll') },
+  ];
 
   useEffect(() => {
     if (!current) return;
@@ -69,14 +71,14 @@ function ManagePermissions({ role, onClose }: { role: RoleRow; onClose: () => vo
       }
     }
     if (permissions.length === 0) {
-      push('Grant at least one permission before saving', 'error');
+      push(t('roles.grantAtLeastOne'), 'error');
       return;
     }
     setSaving(true);
     try {
       await api.put(`/roles/${role.id}/permissions`, { permissions });
       qc.invalidateQueries({ queryKey: ['role-permissions', role.id] });
-      push('Permissions updated');
+      push(t('roles.updated'));
       onClose();
     } catch (e) {
       push(apiErrorMessage(e), 'error');
@@ -88,17 +90,17 @@ function ManagePermissions({ role, onClose }: { role: RoleRow; onClose: () => vo
   const loading = catalogLoading || currentLoading;
 
   return (
-    <DialogContent title={`Permissions — ${role.name}`} className="max-w-3xl max-h-[85vh] overflow-y-auto">
+    <DialogContent title={`${t('roles.permissions')} — ${role.name}`} className="max-w-3xl max-h-[85vh] overflow-y-auto">
       {loading && <Skeleton className="h-64" />}
       {!loading && (
         <div className="flex flex-col gap-1">
-          <div className="grid grid-cols-[140px_1fr_140px] gap-2 text-[11px] font-medium text-muted-foreground pb-2 border-b border-input mb-2">
-            <span>Module</span>
-            <span>Actions</span>
-            <span>Scope</span>
+          <div className="hidden sm:grid grid-cols-[140px_1fr_140px] gap-2 text-[11px] font-medium text-muted-foreground pb-2 border-b border-input mb-2">
+            <span>{t('roles.module')}</span>
+            <span>{t('common.actions')}</span>
+            <span>{t('roles.scope')}</span>
           </div>
           {PERMISSION_MODULES.map((module) => (
-            <div key={module} className="grid grid-cols-[140px_1fr_140px] gap-2 items-start py-2 border-b border-input/60">
+            <div key={module} className="grid grid-cols-1 sm:grid-cols-[140px_1fr_140px] gap-2 items-start py-2 border-b border-input/60">
               <span className="text-xs font-medium capitalize pt-1">{module.replace(/-/g, ' ')}</span>
               <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                 {PERMISSION_ACTIONS.map((action) => (
@@ -122,8 +124,8 @@ function ManagePermissions({ role, onClose }: { role: RoleRow; onClose: () => vo
             </div>
           ))}
           <div className="flex justify-end gap-2 mt-4 sticky bottom-0 bg-white pt-2">
-            <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-            <Button type="button" onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save Permissions'}</Button>
+            <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+            <Button type="button" onClick={onSave} disabled={saving}>{saving ? t('common.saving') : t('roles.savePermissions')}</Button>
           </div>
         </div>
       )}
@@ -132,6 +134,7 @@ function ManagePermissions({ role, onClose }: { role: RoleRow; onClose: () => vo
 }
 
 export default function RolesPage() {
+  const { t } = useLocale();
   const { data: roles, isLoading } = useRoles();
   const { can, isSystemOwner } = usePermission();
   const { push } = useToast();
@@ -153,7 +156,7 @@ export default function RolesPage() {
       qc.invalidateQueries({ queryKey: ['roles'] });
       setCreateOpen(false);
       createForm.reset();
-      push('Role created — open "Permissions" to configure access');
+      push(t('roles.created'));
     } catch (e) {
       push(apiErrorMessage(e), 'error');
     }
@@ -168,18 +171,18 @@ export default function RolesPage() {
       });
       qc.invalidateQueries({ queryKey: ['roles'] });
       setEditRole(null);
-      push('Role updated');
+      push(t('common.save'));
     } catch (e) {
       push(apiErrorMessage(e), 'error');
     }
   };
 
   const onDelete = async (role: RoleRow) => {
-    if (!confirm(`Delete role "${role.name}"? This cannot be undone.`)) return;
+    if (!confirm(t('roles.deleteConfirm', { name: role.name }))) return;
     try {
       await api.delete(`/roles/${role.id}`);
       qc.invalidateQueries({ queryKey: ['roles'] });
-      push('Role deleted');
+      push(t('roles.deleted'));
     } catch (e) {
       push(apiErrorMessage(e), 'error');
     }
@@ -188,28 +191,28 @@ export default function RolesPage() {
   return (
     <RequireAuth>
       <div className="max-w-4xl">
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-5 gap-2">
           <div>
-            <h1 className="text-xl font-medium">Roles</h1>
-            <p className="text-xs text-muted-foreground mt-1">Create custom roles and configure exactly what each one can access.</p>
+            <h1 className="text-xl font-medium">{t('roles.title')}</h1>
+            <p className="text-xs text-muted-foreground mt-1">{t('roles.subtitle')}</p>
           </div>
           {(can('roles', 'create') || isSystemOwner) && (
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-              <DialogTrigger asChild><Button>New Role</Button></DialogTrigger>
-              <DialogContent title="Create Role">
+              <DialogTrigger asChild><Button className="flex-none">{t('roles.newRole')}</Button></DialogTrigger>
+              <DialogContent title={t('roles.createRole')}>
                 <form onSubmit={createForm.handleSubmit(onCreate)} className="flex flex-col gap-3">
-                  <div><Label>Name</Label><Input {...createForm.register('name')} placeholder="e.g. Site Supervisor" /></div>
-                  <div><Label>Description</Label><Input {...createForm.register('description')} placeholder="Optional" /></div>
+                  <div><Label>{t('common.name')}</Label><Input {...createForm.register('name')} placeholder="e.g. Site Supervisor" /></div>
+                  <div><Label>{t('common.description')}</Label><Input {...createForm.register('description')} placeholder={t('common.optional')} /></div>
                   <div>
-                    <Label>Clone permissions from (optional)</Label>
+                    <Label>{t('roles.cloneFrom')}</Label>
                     <Select {...createForm.register('clone_from_role_id')}>
-                      <option value="">Start empty</option>
+                      <option value="">{t('roles.startEmpty')}</option>
                       {roles?.map((r: RoleRow) => <option key={r.id} value={r.id}>{r.name}</option>)}
                     </Select>
                   </div>
                   <div className="flex justify-end gap-2 mt-2">
-                    <Button type="button" variant="secondary" onClick={() => setCreateOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={createForm.formState.isSubmitting}>Create</Button>
+                    <Button type="button" variant="secondary" onClick={() => setCreateOpen(false)}>{t('common.cancel')}</Button>
+                    <Button type="submit" disabled={createForm.formState.isSubmitting}>{t('common.create')}</Button>
                   </div>
                 </form>
               </DialogContent>
@@ -218,30 +221,32 @@ export default function RolesPage() {
         </div>
 
         {isLoading && <Skeleton className="h-64" />}
-        {roles && roles.length === 0 && <EmptyState title="No roles yet" />}
+        {roles && roles.length === 0 && <EmptyState title={t('roles.noRolesYet')} />}
         {roles && roles.length > 0 && (
           <div className="rounded-lg border border-input bg-white overflow-hidden">
             {roles.map((r: RoleRow) => (
-              <div key={r.id} className="flex items-center gap-3 px-4 py-3 border-t first:border-t-0 border-input text-sm">
-                <div className="flex-1 min-w-0">
+              <div key={r.id} className="flex flex-wrap items-center gap-3 px-4 py-3 border-t first:border-t-0 border-input text-sm">
+                <div className="flex-1 min-w-[160px]">
                   <div className="flex items-center gap-2">
                     <span className="font-medium truncate">{r.name}</span>
-                    {r.isSystemRole && <Badge tone="slate">System</Badge>}
+                    {r.isSystemRole && <Badge tone="slate">{t('roles.system')}</Badge>}
                   </div>
                   {r.description && <div className="text-[11px] text-muted-foreground truncate mt-0.5">{r.description}</div>}
                 </div>
-                <button className="text-[11px] text-accent" onClick={() => setPermRole(r)}>Permissions</button>
-                {(can('roles', 'edit') || isSystemOwner) && (
-                  <button
-                    className="text-[11px] text-accent"
-                    onClick={() => { setEditRole(r); editForm.reset({ name: r.name, description: r.description ?? '' }); }}
-                  >
-                    Edit
-                  </button>
-                )}
-                {!r.isSystemRole && (can('roles', 'delete') || isSystemOwner) && (
-                  <button className="text-[11px] text-destructive" onClick={() => onDelete(r)}>Delete</button>
-                )}
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                  <button className="text-[11px] text-accent" onClick={() => setPermRole(r)}>{t('roles.permissions')}</button>
+                  {(can('roles', 'edit') || isSystemOwner) && (
+                    <button
+                      className="text-[11px] text-accent"
+                      onClick={() => { setEditRole(r); editForm.reset({ name: r.name, description: r.description ?? '' }); }}
+                    >
+                      {t('common.edit')}
+                    </button>
+                  )}
+                  {!r.isSystemRole && (can('roles', 'delete') || isSystemOwner) && (
+                    <button className="text-[11px] text-destructive" onClick={() => onDelete(r)}>{t('common.delete')}</button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -252,13 +257,13 @@ export default function RolesPage() {
         </Dialog>
 
         <Dialog open={!!editRole} onOpenChange={(o) => !o && setEditRole(null)}>
-          <DialogContent title={`Edit Role${editRole?.isSystemRole ? ' (system role — name locked)' : ''}`}>
+          <DialogContent title={editRole?.isSystemRole ? `${t('roles.editRole')} (${t('roles.systemRoleLocked')})` : t('roles.editRole')}>
             <form onSubmit={editForm.handleSubmit(onEdit)} className="flex flex-col gap-3">
-              <div><Label>Name</Label><Input {...editForm.register('name')} disabled={editRole?.isSystemRole} /></div>
-              <div><Label>Description</Label><Input {...editForm.register('description')} /></div>
+              <div><Label>{t('common.name')}</Label><Input {...editForm.register('name')} disabled={editRole?.isSystemRole} /></div>
+              <div><Label>{t('common.description')}</Label><Input {...editForm.register('description')} /></div>
               <div className="flex justify-end gap-2 mt-2">
-                <Button type="button" variant="secondary" onClick={() => setEditRole(null)}>Cancel</Button>
-                <Button type="submit">Save</Button>
+                <Button type="button" variant="secondary" onClick={() => setEditRole(null)}>{t('common.cancel')}</Button>
+                <Button type="submit">{t('common.save')}</Button>
               </div>
             </form>
           </DialogContent>

@@ -8,6 +8,7 @@ import { useTaskStatuses, useUsers } from '@/hooks/use-resources';
 import { usePermission } from '@/hooks/use-permission';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/components/ui/toast';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { api, apiErrorMessage } from '@/lib/api-client';
 import { StatusBadge, PriorityBadge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,6 +23,7 @@ import { ErrorState } from '@/components/shared/states';
 import { formatDate } from '@/lib/utils';
 
 export default function Page() {
+  const { t } = useLocale();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const qc = useQueryClient();
@@ -57,7 +59,7 @@ export default function Page() {
       await api.post(`/tasks/${id}/status`, { to_status_id: newStatusId, reason: reason || undefined });
       setNewStatusId(''); setReason('');
       invalidateAll();
-      push('Status updated');
+      push(t('tasks.statusUpdated'));
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
@@ -65,7 +67,7 @@ export default function Page() {
     if (!reassignTo) return;
     try {
       await api.post(`/tasks/${id}/assign`, { assignee_id: reassignTo });
-      setReassignTo(''); invalidateAll(); push('Task reassigned');
+      setReassignTo(''); invalidateAll(); push(t('tasks.taskReassigned'));
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
@@ -115,14 +117,14 @@ export default function Page() {
   };
 
   if (isLoading) return <RequireAuth><Skeleton className="h-64" /></RequireAuth>;
-  if (isError || !task) return <RequireAuth><ErrorState title="Task not found" onRetry={() => refetch()} /></RequireAuth>;
+  if (isError || !task) return <RequireAuth><ErrorState title={t('tasks.taskNotFound')} onRetry={() => refetch()} /></RequireAuth>;
 
   const isWatching = (task.watchers ?? []).some((w) => w.user_id === user?.id);
 
   return (
     <RequireAuth>
       <div className="max-w-5xl">
-        <button onClick={() => router.push('/tasks')} className="text-xs text-accent mb-3">← Back to Tasks</button>
+        <button onClick={() => router.push('/tasks')} className="text-xs text-accent mb-3">← {t('tasks.backToTasks')}</button>
         <div className="flex items-start justify-between gap-4 mb-1 flex-wrap">
           <div>
             <div className="text-[11px] text-muted-foreground mb-1">{task.code}</div>
@@ -133,38 +135,38 @@ export default function Page() {
             <StatusBadge name={task.status.name} />
           </div>
         </div>
-        <div className="flex gap-4 text-[11px] text-muted-foreground mb-5">
-          <span>Due: {formatDate(task.due_date)}</span>
-          <span>Created: {formatDate(task.created_at)}</span>
-          {task.is_overdue && <span className="text-destructive font-medium">Overdue</span>}
+        <div className="flex gap-4 text-[11px] text-muted-foreground mb-5 flex-wrap">
+          <span>{t('tasks.due')}: {formatDate(task.due_date)}</span>
+          <span>{t('tasks.created')}: {formatDate(task.created_at)}</span>
+          {task.is_overdue && <span className="text-destructive font-medium">{t('tasks.overdue')}</span>}
         </div>
 
         {task.is_blocked && (
           <div className="mb-4 rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive">
-            <div className="font-medium mb-1">This task is blocked</div>
+            <div className="font-medium mb-1">{t('tasks.blocked')}</div>
             {(task.blocking_reasons ?? []).map((r, i) => <div key={i}>{r}</div>)}
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-5">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 min-w-0">
             <Card><CardContent>
-              <div className="text-xs font-medium text-muted-foreground mb-2">Description</div>
+              <div className="text-xs font-medium text-muted-foreground mb-2">{t('tasks.description')}</div>
               <p className="text-sm whitespace-pre-wrap">{task.description || '—'}</p>
             </CardContent></Card>
 
             <Tabs defaultValue="checklist">
-              <TabsList>
-                <TabsTrigger value="checklist">Checklist</TabsTrigger>
-                <TabsTrigger value="comments">Comments</TabsTrigger>
-                <TabsTrigger value="attachments">Attachments</TabsTrigger>
-                <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsList className="overflow-x-auto max-w-full">
+                <TabsTrigger value="checklist">{t('tasks.checklist')}</TabsTrigger>
+                <TabsTrigger value="comments">{t('tasks.comments')}</TabsTrigger>
+                <TabsTrigger value="attachments">{t('tasks.attachments')}</TabsTrigger>
+                <TabsTrigger value="activity">{t('tasks.activity')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="checklist">
                 <Card className="mt-3"><CardContent>
                   {!checklists?.checklists?.length && (
-                    <Button size="sm" variant="secondary" onClick={createChecklistGroup}>Add checklist</Button>
+                    <Button size="sm" variant="secondary" onClick={createChecklistGroup}>{t('tasks.addChecklist')}</Button>
                   )}
                   {checklists?.checklists?.map((c: any) => (
                     <div key={c.id} className="mb-3">
@@ -178,8 +180,8 @@ export default function Page() {
                         ))}
                       </div>
                       <div className="flex gap-2 mt-2">
-                        <Input value={newChecklistItem} onChange={(e) => setNewChecklistItem(e.target.value)} placeholder="Add an item…" className="h-8 text-xs" />
-                        <Button size="sm" variant="secondary" onClick={addChecklistItem}>Add</Button>
+                        <Input value={newChecklistItem} onChange={(e) => setNewChecklistItem(e.target.value)} placeholder={t('tasks.addItem')} className="h-8 text-xs" />
+                        <Button size="sm" variant="secondary" onClick={addChecklistItem}>{t('tasks.add')}</Button>
                       </div>
                     </div>
                   ))}
@@ -195,10 +197,10 @@ export default function Page() {
                         <p className="text-sm">{c.body}</p>
                       </div>
                     ))}
-                    {!comments?.data?.length && <p className="text-xs text-muted-foreground">No comments yet.</p>}
+                    {!comments?.data?.length && <p className="text-xs text-muted-foreground">{t('tasks.noComments')}</p>}
                   </div>
-                  <Textarea value={commentBody} onChange={(e) => setCommentBody(e.target.value)} placeholder="Write a comment…" className="mb-2" />
-                  <Button size="sm" onClick={postComment}>Post</Button>
+                  <Textarea value={commentBody} onChange={(e) => setCommentBody(e.target.value)} placeholder={t('tasks.writeComment')} className="mb-2" />
+                  <Button size="sm" onClick={postComment}>{t('tasks.post')}</Button>
                 </CardContent></Card>
               </TabsContent>
 
@@ -209,7 +211,7 @@ export default function Page() {
                       <span>📎 {a.file_name} (v{a.version_number})</span>
                     </div>
                   ))}
-                  {!attachments?.length && <p className="text-xs text-muted-foreground">No attachments. File upload UI connects to POST /tasks/:id/attachments/upload-url once a storage backend (MinIO/S3) is live — currently a local-disk stand-in per backend design.</p>}
+                  {!attachments?.length && <p className="text-xs text-muted-foreground">{t('tasks.noAttachments')}</p>}
                 </CardContent></Card>
               </TabsContent>
 
@@ -221,51 +223,51 @@ export default function Page() {
                       <span className="text-muted-foreground">{formatDate(h.created_at)}</span>
                     </div>
                   ))}
-                  {!history?.data?.length && <p className="text-xs text-muted-foreground">No activity yet.</p>}
+                  {!history?.data?.length && <p className="text-xs text-muted-foreground">{t('tasks.noActivity')}</p>}
                 </CardContent></Card>
               </TabsContent>
             </Tabs>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 min-w-0">
             <Card><CardContent>
-              <div className="text-[10px] uppercase text-muted-foreground mb-2">Assignee</div>
-              <div className="text-sm mb-3">{task.assignee?.full_name ?? 'Unassigned'}</div>
+              <div className="text-[10px] uppercase text-muted-foreground mb-2">{t('tasks.assignee')}</div>
+              <div className="text-sm mb-3">{task.assignee?.full_name ?? t('tasks.unassigned')}</div>
               {can('tasks', 'assign') && (
                 <div className="flex gap-2">
                   <Select value={reassignTo} onChange={(e) => setReassignTo(e.target.value)} className="text-xs">
-                    <option value="">Reassign to…</option>
+                    <option value="">{t('tasks.reassignTo')}</option>
                     {users?.data.map((u) => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                   </Select>
-                  <Button size="sm" variant="secondary" onClick={reassign}>Go</Button>
+                  <Button size="sm" variant="secondary" onClick={reassign}>{t('tasks.go')}</Button>
                 </div>
               )}
             </CardContent></Card>
 
             {can('tasks', 'edit') && (
               <Card><CardContent>
-                <div className="text-[10px] uppercase text-muted-foreground mb-2">Change Status</div>
+                <div className="text-[10px] uppercase text-muted-foreground mb-2">{t('tasks.changeStatus')}</div>
                 <Select value={newStatusId} onChange={(e) => setNewStatusId(e.target.value)} className="mb-2 text-xs">
-                  <option value="">Select target status…</option>
+                  <option value="">{t('tasks.selectTargetStatus')}</option>
                   {statuses?.map((s) => <option key={s.id} value={s.id}>{s.name.replace(/_/g, ' ')}</option>)}
                 </Select>
-                <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (required for reject/cancel)" className="mb-2 text-xs" />
-                <Button size="sm" onClick={changeStatus} className="w-full">Apply</Button>
+                <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t('tasks.reasonPlaceholder')} className="mb-2 text-xs" />
+                <Button size="sm" onClick={changeStatus} className="w-full">{t('tasks.apply')}</Button>
               </CardContent></Card>
             )}
 
             <Card><CardContent>
               <Button size="sm" variant={isWatching ? 'secondary' : 'outline'} className="w-full mb-2" onClick={() => toggleWatch(isWatching)}>
-                {isWatching ? '★ Watching' : '☆ Watch this task'}
+                {isWatching ? t('tasks.watching') : t('tasks.watchThisTask')}
               </Button>
-              {can('tasks', 'create') && <Button size="sm" variant="outline" className="w-full" onClick={duplicate}>Duplicate</Button>}
+              {can('tasks', 'create') && <Button size="sm" variant="outline" className="w-full" onClick={duplicate}>{t('tasks.duplicate')}</Button>}
             </CardContent></Card>
 
             {(task.dependencies_from?.length || task.dependencies_to?.length) ? (
               <Card><CardContent>
-                <div className="text-[10px] uppercase text-muted-foreground mb-2">Dependencies</div>
-                {task.dependencies_from?.map((d) => <div key={d.id} className="text-xs mb-1">Depends on: {d.depends_on.title} ({d.type})</div>)}
-                {task.dependencies_to?.map((d) => <div key={d.id} className="text-xs mb-1">Blocks: {d.task.title} ({d.type})</div>)}
+                <div className="text-[10px] uppercase text-muted-foreground mb-2">{t('tasks.dependencies')}</div>
+                {task.dependencies_from?.map((d) => <div key={d.id} className="text-xs mb-1">{t('tasks.dependsOn')}: {d.depends_on.title} ({d.type})</div>)}
+                {task.dependencies_to?.map((d) => <div key={d.id} className="text-xs mb-1">{t('tasks.blocks')}: {d.task.title} ({d.type})</div>)}
               </CardContent></Card>
             ) : null}
           </div>

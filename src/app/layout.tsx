@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Abraj Al Yasir Tasks', description: 
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" dir="ltr">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
       </body>

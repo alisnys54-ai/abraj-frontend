@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { RequireAuth } from '@/components/layout/require-auth';
 import { useDepartmentTree } from '@/hooks/use-resources';
 import { usePermission } from '@/hooks/use-permission';
+import { useLocale } from '@/lib/i18n/locale-context';
 import { api, apiErrorMessage } from '@/lib/api-client';
 import { useToast } from '@/components/ui/toast';
 import { createDepartmentSchema, type CreateDepartmentInput, type DepartmentNode } from '@/lib/schemas/department';
@@ -13,19 +14,19 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/states';
 import { useConfirmDialog } from '@/components/shared/confirm-dialog';
 
 function DeptNode({ node, depth, onArchive, onRestore, canManage }: { node: DepartmentNode; depth: number; onArchive: (id: string) => void; onRestore: (id: string) => void; canManage: boolean }) {
+  const { t } = useLocale();
   return (
     <div style={{ marginInlineStart: depth * 20 }} className="mb-1.5">
-      <div className="flex items-center gap-3 rounded-md border border-input bg-white px-3 py-2">
-        <span className={`text-sm font-medium flex-1 ${!node.is_active ? 'text-muted-foreground line-through' : ''}`}>{node.name}</span>
-        <span className="text-[11px] text-muted-foreground">{node.employee_count} employees · {node.position_count} positions</span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border border-input bg-white px-3 py-2">
+        <span className={`text-sm font-medium flex-1 min-w-[120px] ${!node.is_active ? 'text-muted-foreground line-through' : ''}`}>{node.name}</span>
+        <span className="text-[11px] text-muted-foreground">{node.employee_count} {t('common.employees')} · {node.position_count} {t('departments.positions')}</span>
         {node.managers.length > 0 && <span className="text-[11px] text-accent">{node.managers.map((m) => m.full_name).join(', ')}</span>}
-        {canManage && (node.is_active ? <button onClick={() => onArchive(node.id)} className="text-[11px] text-destructive">Archive</button> : <button onClick={() => onRestore(node.id)} className="text-[11px] text-accent">Restore</button>)}
+        {canManage && (node.is_active ? <button onClick={() => onArchive(node.id)} className="text-[11px] text-destructive">{t('common.archive')}</button> : <button onClick={() => onRestore(node.id)} className="text-[11px] text-accent">{t('common.restore')}</button>)}
       </div>
       {node.children.map((c) => <DeptNode key={c.id} node={c} depth={depth + 1} onArchive={onArchive} onRestore={onRestore} canManage={canManage} />)}
     </div>
@@ -33,6 +34,7 @@ function DeptNode({ node, depth, onArchive, onRestore, canManage }: { node: Depa
 }
 
 export default function DepartmentsPage() {
+  const { t } = useLocale();
   const { data: tree, isLoading } = useDepartmentTree();
   const { can } = usePermission();
   const { push } = useToast();
@@ -46,11 +48,11 @@ export default function DepartmentsPage() {
     try {
       await api.post('/departments', { name: values.name, parent_department_id: values.parent_department_id || undefined });
       qc.invalidateQueries({ queryKey: ['departments-tree'] });
-      setOpen(false); reset(); push('Department created');
+      setOpen(false); reset(); push(t('departments.created'));
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
-  const archive = (id: string) => confirm('Archive department', 'This department will be hidden from active views.', async () => {
+  const archive = (id: string) => confirm(t('departments.archiveTitle'), t('departments.archiveDesc'), async () => {
     try { await api.patch(`/departments/${id}/archive`); qc.invalidateQueries({ queryKey: ['departments-tree'] }); } catch (e) { push(apiErrorMessage(e), 'error'); }
   });
   const restore = async (id: string) => {
@@ -60,17 +62,17 @@ export default function DepartmentsPage() {
   return (
     <RequireAuth>
       <div className="max-w-4xl">
-        <div className="flex items-center justify-between mb-5">
-          <h1 className="text-xl font-medium">Departments</h1>
+        <div className="flex items-center justify-between mb-5 gap-2">
+          <h1 className="text-xl font-medium">{t('departments.title')}</h1>
           {can('departments', 'create') && (
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild><Button>New Department</Button></DialogTrigger>
-              <DialogContent title="Create Department">
+              <DialogTrigger asChild><Button>{t('departments.newDepartment')}</Button></DialogTrigger>
+              <DialogContent title={t('departments.createDepartment')}>
                 <form onSubmit={handleSubmit(onCreate)} className="flex flex-col gap-3">
-                  <div><Label>Name</Label><Input {...register('name')} /></div>
+                  <div><Label>{t('common.name')}</Label><Input {...register('name')} /></div>
                   <div className="flex justify-end gap-2 mt-2">
-                    <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button type="submit" disabled={isSubmitting}>Create</Button>
+                    <Button type="button" variant="secondary" onClick={() => setOpen(false)}>{t('common.cancel')}</Button>
+                    <Button type="submit" disabled={isSubmitting}>{t('common.create')}</Button>
                   </div>
                 </form>
               </DialogContent>
@@ -78,7 +80,7 @@ export default function DepartmentsPage() {
           )}
         </div>
         {isLoading && <Skeleton className="h-64" />}
-        {tree && tree.length === 0 && <EmptyState title="No departments yet" />}
+        {tree && tree.length === 0 && <EmptyState title={t('departments.noDepartmentsYet')} />}
         {tree?.map((n) => <DeptNode key={n.id} node={n} depth={0} onArchive={archive} onRestore={restore} canManage={canManage} />)}
         {dialog}
       </div>
