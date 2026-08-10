@@ -24,7 +24,7 @@ export default function ProfilePage() {
 
   const savePrefs = async (next: Record<string, boolean>) => {
     setPrefs(next);
-    try { await api.patch('/me', { notification_prefs: next }); await refetchMe(); } catch (e) { push(apiErrorMessage(e), 'error'); }
+    try { await api.patch(`/users/${user!.id}`, { notification_prefs: next }); await refetchMe(); } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
   const onChangePassword = async (values: ChangePasswordInput) => {

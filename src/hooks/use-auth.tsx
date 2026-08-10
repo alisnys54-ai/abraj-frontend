@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchMe = useCallback(async () => {
     try {
-      const res = await api.get<MeProfile>('/me');
+      const res = await api.get<MeProfile>('/users/me');
       setUser(res.data);
       getNotificationsSocket();
     } catch {
