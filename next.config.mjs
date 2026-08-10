@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  trailingSlash: true,
   images: { unoptimized: true },
-  // Remove output: export - deploy as serverless on Netlify
+  // Deployed as serverless on Netlify via @netlify/plugin-nextjs.
+  // Note: no output:'export' (dynamic route /tasks/[id] needs SSR),
+  // and no trailingSlash (it can cause 404s with the Netlify Next runtime).
 };
 export default nextConfig;
