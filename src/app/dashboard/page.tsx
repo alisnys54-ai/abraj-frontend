@@ -18,6 +18,16 @@ export default function DashboardPage() {
   const kind = user?.is_system_owner ? 'executive' : user?.role?.name === 'Department Manager' ? 'team' : 'personal';
   const { data, isLoading, isError, refetch } = useDashboard(kind);
 
+  // Defensive: the three dashboard shapes differ (personal returns only kpis),
+  // and any section may be absent. Coerce everything to safe shapes so a
+  // missing/renamed field can never throw a client-side exception.
+  const d = (data ?? {}) as Record<string, any>;
+  const kpis = (d.kpis ?? {}) as Record<string, any>;
+  const departments: any[] = Array.isArray(d.departments) ? d.departments : [];
+  const workload: any[] = Array.isArray(d.workload) ? d.workload : [];
+  const overdue = d.overdue && typeof d.overdue === 'object' ? d.overdue : null;
+  const byPriority: any[] = overdue && Array.isArray(overdue.by_priority) ? overdue.by_priority : [];
+
   return (
     <RequireAuth>
       <div className="max-w-6xl">
@@ -25,26 +35,28 @@ export default function DashboardPage() {
         <p className="text-xs text-muted-foreground mb-6">{t('dashboard.welcomeBack')}, {user?.full_name}</p>
 
         {isLoading && <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-20" />)}</div>}
-        {isError && <button onClick={() => refetch()} className="text-xs underline">{t('common.retry')}</button>}
+        {isError && (
+          <button onClick={() => refetch()} className="text-xs underline">{t('common.retry')}</button>
+        )}
 
         {data && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              <Kpi label={t('dashboard.totalTasks')} value={data.kpis?.total ?? 0} />
-              <Kpi label={t('dashboard.active')} value={data.kpis?.active ?? 0} />
-              <Kpi label={t('dashboard.completed')} value={data.kpis?.completed ?? 0} />
-              <Kpi label={t('dashboard.overdue')} value={data.kpis?.overdue ?? 0} />
+              <Kpi label={t('dashboard.totalTasks')} value={Number(kpis.total ?? 0)} />
+              <Kpi label={t('dashboard.active')} value={Number(kpis.active ?? 0)} />
+              <Kpi label={t('dashboard.completed')} value={Number(kpis.completed ?? 0)} />
+              <Kpi label={t('dashboard.overdue')} value={Number(kpis.overdue ?? 0)} />
             </div>
 
-            {data.departments && (
+            {departments.length > 0 && (
               <Card className="mb-4">
                 <CardContent>
                   <div className="text-xs font-medium mb-3">{t('dashboard.departmentLoad')}</div>
                   <div className="flex flex-col gap-2">
-                    {data.departments.map((d: any) => (
-                      <div key={d.department_id}>
-                        <div className="flex justify-between text-[11px] mb-1"><span>{d.name}</span><span className="text-muted-foreground">{d.total_tasks}</span></div>
-                        <div className="h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-accent" style={{ width: `${d.completion_rate}%` }} /></div>
+                    {departments.map((dep: any, i: number) => (
+                      <div key={dep?.department_id ?? i}>
+                        <div className="flex justify-between text-[11px] mb-1"><span>{dep?.name ?? '—'}</span><span className="text-muted-foreground">{dep?.total_tasks ?? 0}</span></div>
+                        <div className="h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-accent" style={{ width: `${Math.max(0, Math.min(100, Number(dep?.completion_rate ?? 0)))}%` }} /></div>
                       </div>
                     ))}
                   </div>
@@ -52,24 +64,24 @@ export default function DashboardPage() {
               </Card>
             )}
 
-            {data.workload && (
+            {workload.length > 0 && (
               <Card className="mb-4">
                 <CardContent>
                   <div className="text-xs font-medium mb-3">{t('dashboard.teamWorkload')}</div>
                   <div className="flex flex-col gap-2">
-                    {data.workload.map((w: any) => (
-                      <div key={w.user_id} className="flex justify-between text-xs"><span>{w.full_name}</span><span className="font-medium">{w.active_tasks}</span></div>
+                    {workload.map((w: any, i: number) => (
+                      <div key={w?.user_id ?? i} className="flex justify-between text-xs"><span>{w?.full_name ?? '—'}</span><span className="font-medium">{w?.active_tasks ?? 0}</span></div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {data.overdue && (
+            {overdue && (
               <Card>
                 <CardContent>
-                  <div className="text-xs font-medium mb-2">{t('dashboard.overdue')} — {data.overdue.total_overdue}</div>
-                  <div className="text-[11px] text-muted-foreground">{t('dashboard.overdueByPriority')}: {data.overdue.by_priority?.map((p: any) => `${p.priority} (${p.count})`).join(', ') || '—'}</div>
+                  <div className="text-xs font-medium mb-2">{t('dashboard.overdue')} — {overdue.total_overdue ?? 0}</div>
+                  <div className="text-[11px] text-muted-foreground">{t('dashboard.overdueByPriority')}: {byPriority.map((p: any) => `${p?.priority ?? '—'} (${p?.count ?? 0})`).join(', ') || '—'}</div>
                 </CardContent>
               </Card>
             )}
