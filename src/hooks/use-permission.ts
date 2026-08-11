@@ -8,7 +8,8 @@ export function usePermission() {
   const scopeFor = (module: string, action: string): 'all' | 'department' | 'own' | null => {
     if (!user) return null;
     if (user.is_system_owner) return 'all';
-    const grant = user.permissions.find((p) => p.module === module && p.action === action);
+    const perms = Array.isArray(user.permissions) ? user.permissions : [];
+    const grant = perms.find((p) => p.module === module && p.action === action);
     return grant?.scope ?? null;
   };
 
