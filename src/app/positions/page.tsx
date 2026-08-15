@@ -26,6 +26,9 @@ export default function PositionsPage() {
   const { push } = useToast();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editPos, setEditPos] = useState<any | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDept, setEditDept] = useState('');
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<CreatePositionInput>({ resolver: zodResolver(createPositionSchema) });
 
   const deptName = (id: string | null) => depts?.data.find((d) => d.id === id)?.name ?? '—';
@@ -42,6 +45,16 @@ export default function PositionsPage() {
     try {
       await api.patch(`/positions/${id}/${archived ? 'restore' : 'archive'}`);
       qc.invalidateQueries({ queryKey: ['positions'] });
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+
+  const openEdit = (p: any) => { setEditPos(p); setEditTitle(p.title ?? ''); setEditDept(p.department_id ?? ''); };
+  const saveEdit = async () => {
+    if (!editPos) return;
+    try {
+      await api.patch(`/positions/${editPos.id}`, { title: editTitle, department_id: editDept || undefined });
+      qc.invalidateQueries({ queryKey: ['positions'] });
+      setEditPos(null); push(t('positions.updated'));
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
@@ -81,6 +94,9 @@ export default function PositionsPage() {
                 <span className={`flex-1 min-w-[120px] ${p.is_archived ? 'text-muted-foreground line-through' : ''}`}>{p.title}</span>
                 <span className="text-[11px] text-muted-foreground">{deptName(p.department_id)}</span>
                 {can('positions', 'edit') && (
+                  <button onClick={() => openEdit(p)} className="text-[11px] text-accent">{t('positions.edit')}</button>
+                )}
+                {can('positions', 'edit') && (
                   <button onClick={() => toggleArchive(p.id, p.is_archived)} className={`text-[11px] ${p.is_archived ? 'text-accent' : 'text-destructive'}`}>
                     {p.is_archived ? t('positions.restore') : t('positions.archive')}
                   </button>
@@ -89,6 +105,25 @@ export default function PositionsPage() {
             ))}
           </div>
         )}
+
+        <Dialog open={!!editPos} onOpenChange={(o) => !o && setEditPos(null)}>
+          <DialogContent title={t('positions.editPosition')}>
+            <div className="flex flex-col gap-3">
+              <div><Label>{t('common.title')}</Label><Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} /></div>
+              <div>
+                <Label>{t('common.department')} ({t('common.optional')})</Label>
+                <Select value={editDept} onChange={(e) => setEditDept(e.target.value)}>
+                  <option value="">{t('positions.companyWide')}</option>
+                  {depts?.data.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2 mt-2">
+                <Button variant="secondary" onClick={() => setEditPos(null)}>{t('common.cancel')}</Button>
+                <Button onClick={saveEdit}>{t('positions.save')}</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </RequireAuth>
   );

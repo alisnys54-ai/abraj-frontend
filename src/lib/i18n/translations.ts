@@ -53,10 +53,15 @@ export const translations = {
       topLevel: 'Top level', noDepartmentsYet: 'No departments yet', createDepartment: 'Create Department',
       created: 'Department created', archiveTitle: 'Archive department',
       archiveDesc: 'This department will be hidden from active views.', positions: 'positions',
+      edit: 'Edit', editDepartment: 'Edit Department', deleteDept: 'Delete', save: 'Save',
+      deleteConfirm: 'Delete "{name}"? This cannot be undone.', updated: 'Department updated', deleted: 'Department deleted',
+      managers: 'Managers', manageManagers: 'Managers', assignManager: 'Assign a manager', addManager: 'Add', noManagers: 'No managers assigned',
+      managerAdded: 'Manager assigned', managerRemoved: 'Manager removed',
     },
     positions: {
       title: 'Positions', newPosition: 'New Position', companyWide: 'Company-wide', archive: 'Archive',
       restore: 'Restore', noPositionsYet: 'No positions yet', createPosition: 'Create Position', created: 'Position created',
+      edit: 'Edit', editPosition: 'Edit Position', save: 'Save', updated: 'Position updated',
     },
     tasks: {
       title: 'Tasks', newTask: 'New Task', kanban: 'Kanban', calendar: 'Calendar', priority: 'Priority',
@@ -159,10 +164,15 @@ export const translations = {
       topLevel: 'المستوى الأعلى', noDepartmentsYet: 'لا توجد أقسام بعد', createDepartment: 'إنشاء قسم',
       created: 'تم إنشاء القسم', archiveTitle: 'أرشفة القسم',
       archiveDesc: 'سيتم إخفاء هذا القسم من العروض النشطة.', positions: 'منصب',
+      edit: 'تعديل', editDepartment: 'تعديل القسم', deleteDept: 'حذف', save: 'حفظ',
+      deleteConfirm: 'حذف "{name}"؟ لا يمكن التراجع.', updated: 'تم تحديث القسم', deleted: 'تم حذف القسم',
+      managers: 'المدراء', manageManagers: 'مدراء القسم', assignManager: 'تعيين مدير', addManager: 'إضافة', noManagers: 'لا يوجد مدراء معيّنون',
+      managerAdded: 'تم تعيين المدير', managerRemoved: 'تم إزالة المدير',
     },
     positions: {
       title: 'المناصب', newPosition: 'منصب جديد', companyWide: 'على مستوى الشركة', archive: 'أرشفة',
       restore: 'استعادة', noPositionsYet: 'لا توجد مناصب بعد', createPosition: 'إنشاء منصب', created: 'تم إنشاء المنصب',
+      edit: 'تعديل', editPosition: 'تعديل المنصب', save: 'حفظ', updated: 'تم تحديث المنصب',
     },
     tasks: {
       title: 'المهام', newTask: 'مهمة جديدة', kanban: 'كانبان', calendar: 'التقويم', priority: 'الأولوية',
