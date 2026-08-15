@@ -33,6 +33,9 @@ export const translations = {
       temporaryPassword: 'Temporary password', shareSecurely: "share this securely; it won't be shown again.",
       transfer: 'Transfer', resetPassword: 'Reset PW', deactivate: 'Deactivate', activate: 'Activate',
       transferUser: 'Transfer User', newDepartment: 'New Department', reason: 'Reason', noUsersYet: 'No users yet',
+      editUser: 'Edit User', editInfo: 'Edit', deleteUser: 'Delete', save: 'Save',
+      deleteConfirm: 'Permanently delete "{name}"? This cannot be undone.',
+      userDeleted: 'User deleted', userUpdated: 'User information updated',
     },
     roles: {
       title: 'Roles', subtitle: "Create custom roles and configure exactly what each one can access.",
@@ -72,6 +75,8 @@ export const translations = {
       reasonPlaceholder: 'Reason (required for reject/cancel)', apply: 'Apply', watching: '★ Watching',
       watchThisTask: '☆ Watch this task', duplicate: 'Duplicate', dependencies: 'Dependencies',
       dependsOn: 'Depends on', blocks: 'Blocks', taskNotFound: 'Task not found', taskReassigned: 'Task reassigned',
+      editTask: 'Edit Task', deleteTask: 'Delete Task', saveChanges: 'Save Changes',
+      deleteConfirm: 'Delete this task? This cannot be undone.', taskDeleted: 'Task deleted', taskUpdated: 'Task updated',
     },
     notifications: {
       title: 'Notifications', markAllRead: 'Mark All Read', noNotifications: 'No notifications',
@@ -134,6 +139,9 @@ export const translations = {
       temporaryPassword: 'كلمة مرور مؤقتة', shareSecurely: 'شاركها بطريقة آمنة؛ لن تظهر مرة أخرى.',
       transfer: 'نقل', resetPassword: 'إعادة تعيين', deactivate: 'إيقاف', activate: 'تفعيل',
       transferUser: 'نقل المستخدم', newDepartment: 'القسم الجديد', reason: 'السبب', noUsersYet: 'لا يوجد مستخدمون بعد',
+      editUser: 'تعديل بيانات الموظف', editInfo: 'تعديل', deleteUser: 'حذف', save: 'حفظ',
+      deleteConfirm: 'حذف "{name}" نهائياً؟ لا يمكن التراجع عن هذا.',
+      userDeleted: 'تم حذف الموظف', userUpdated: 'تم تحديث بيانات الموظف',
     },
     roles: {
       title: 'الأدوار', subtitle: 'أنشئ أدواراً مخصصة وحدد بالضبط ما يمكن لكل دور الوصول إليه.',
@@ -173,6 +181,8 @@ export const translations = {
       reasonPlaceholder: 'السبب (مطلوب للرفض/الإلغاء)', apply: 'تطبيق', watching: '★ متابَعة',
       watchThisTask: '☆ متابعة هذه المهمة', duplicate: 'نسخ', dependencies: 'التبعيات',
       dependsOn: 'تعتمد على', blocks: 'تحظر', taskNotFound: 'المهمة غير موجودة', taskReassigned: 'تمت إعادة تكليف المهمة',
+      editTask: 'تعديل المهمة', deleteTask: 'حذف المهمة', saveChanges: 'حفظ التغييرات',
+      deleteConfirm: 'حذف هذه المهمة؟ لا يمكن التراجع.', taskDeleted: 'تم حذف المهمة', taskUpdated: 'تم تحديث المهمة',
     },
     notifications: {
       title: 'الإشعارات', markAllRead: 'تعليم الكل كمقروء', noNotifications: 'لا توجد إشعارات',

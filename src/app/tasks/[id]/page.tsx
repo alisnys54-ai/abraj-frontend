@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { RequireAuth } from '@/components/layout/require-auth';
 import { useTask, useTaskHistory, useTaskComments, useTaskChecklists, useTaskAttachments } from '@/hooks/use-tasks';
-import { useTaskStatuses, useUsers } from '@/hooks/use-resources';
+import { useTaskStatuses, useTaskPriorities, useUsers } from '@/hooks/use-resources';
 import { usePermission } from '@/hooks/use-permission';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/components/ui/toast';
@@ -14,6 +14,8 @@ import { StatusBadge, PriorityBadge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -33,6 +35,7 @@ export default function Page() {
 
   const { data: task, isLoading, isError, refetch } = useTask(id);
   const { data: statuses } = useTaskStatuses();
+  const { data: priorities } = useTaskPriorities();
   const { data: users } = useUsers({ page: 1, page_size: 200 });
   const { data: history } = useTaskHistory(id);
   const { data: comments } = useTaskComments(id);
@@ -44,6 +47,8 @@ export default function Page() {
   const [commentBody, setCommentBody] = useState('');
   const [newChecklistItem, setNewChecklistItem] = useState('');
   const [reassignTo, setReassignTo] = useState('');
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ title: '', description: '', priority_id: '', due_date: '' });
 
   const invalidateAll = () => {
     qc.invalidateQueries({ queryKey: ['task', id] });
@@ -113,6 +118,40 @@ export default function Page() {
     try {
       const res = await api.post(`/tasks/${id}/duplicate`);
       router.push(`/tasks/${res.data.id}`);
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+
+  const openEdit = () => {
+    if (!task) return;
+    setEditForm({
+      title: task.title ?? '',
+      description: task.description ?? '',
+      priority_id: task.priority?.id ?? '',
+      due_date: task.due_date ? task.due_date.slice(0, 10) : '',
+    });
+    setEditOpen(true);
+  };
+
+  const saveEdit = async () => {
+    try {
+      await api.patch(`/tasks/${id}`, {
+        title: editForm.title,
+        description: editForm.description || undefined,
+        priority_id: editForm.priority_id || undefined,
+        due_date: editForm.due_date || null,
+      });
+      setEditOpen(false);
+      invalidateAll();
+      push(t('tasks.taskUpdated'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+
+  const removeTask = async () => {
+    if (!confirm(t('tasks.deleteConfirm'))) return;
+    try {
+      await api.delete(`/tasks/${id}`);
+      push(t('tasks.taskDeleted'));
+      router.push('/tasks');
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
@@ -257,10 +296,12 @@ export default function Page() {
             )}
 
             <Card><CardContent>
+              {can('tasks', 'edit') && <Button size="sm" variant="outline" className="w-full mb-2" onClick={openEdit}>{t('tasks.editTask')}</Button>}
               <Button size="sm" variant={isWatching ? 'secondary' : 'outline'} className="w-full mb-2" onClick={() => toggleWatch(isWatching)}>
                 {isWatching ? t('tasks.watching') : t('tasks.watchThisTask')}
               </Button>
-              {can('tasks', 'create') && <Button size="sm" variant="outline" className="w-full" onClick={duplicate}>{t('tasks.duplicate')}</Button>}
+              {can('tasks', 'create') && <Button size="sm" variant="outline" className="w-full mb-2" onClick={duplicate}>{t('tasks.duplicate')}</Button>}
+              {can('tasks', 'delete') && <Button size="sm" variant="outline" className="w-full text-destructive" onClick={removeTask}>{t('tasks.deleteTask')}</Button>}
             </CardContent></Card>
 
             {(task.dependencies_from?.length || task.dependencies_to?.length) ? (
@@ -272,6 +313,29 @@ export default function Page() {
             ) : null}
           </div>
         </div>
+
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent title={t('tasks.editTask')}>
+            <div className="flex flex-col gap-3">
+              <div><Label>{t('tasks.titleField')}</Label><Input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} /></div>
+              <div><Label>{t('tasks.description')}</Label><Textarea value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>{t('tasks.priority')}</Label>
+                  <Select value={editForm.priority_id} onChange={(e) => setEditForm({ ...editForm, priority_id: e.target.value })}>
+                    <option value="">{t('common.selectPlaceholder')}</option>
+                    {priorities?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </Select>
+                </div>
+                <div><Label>{t('tasks.dueDate')}</Label><Input type="date" value={editForm.due_date} onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })} /></div>
+              </div>
+              <div className="flex justify-end gap-2 mt-2">
+                <Button variant="secondary" onClick={() => setEditOpen(false)}>{t('common.cancel')}</Button>
+                <Button onClick={saveEdit}>{t('tasks.saveChanges')}</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </RequireAuth>
   );

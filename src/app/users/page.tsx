@@ -26,12 +26,14 @@ export default function UsersPage() {
   const { data, isLoading } = useUsers({ page, page_size: 20 });
   const { data: depts } = useDepartments({ page: 1, page_size: 100 });
   const { data: roles } = useRoles();
-  const { can } = usePermission();
+  const { can, isSystemOwner } = usePermission();
   const { push } = useToast();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [transferId, setTransferId] = useState<string | null>(null);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
+  const [editUser, setEditUser] = useState<any | null>(null);
+  const [editData, setEditData] = useState({ full_name: '', phone: '', department_id: '' });
 
   const createForm = useForm<CreateUserInput>({ resolver: zodResolver(createUserSchema) });
   const transferForm = useForm<TransferUserInput>({ resolver: zodResolver(transferUserSchema) });
@@ -67,6 +69,34 @@ export default function UsersPage() {
     try {
       const res = await api.post(`/users/${id}/reset-password`);
       setTempPassword(res.data.temporary_password);
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+
+  const openEdit = (u: any) => {
+    setEditUser(u);
+    setEditData({ full_name: u.full_name ?? '', phone: u.phone ?? '', department_id: u.department_id ?? '' });
+  };
+
+  const saveEdit = async () => {
+    if (!editUser) return;
+    try {
+      await api.patch(`/users/${editUser.id}`, {
+        full_name: editData.full_name,
+        phone: editData.phone || undefined,
+        department_id: editData.department_id || undefined,
+      });
+      qc.invalidateQueries({ queryKey: ['users'] });
+      setEditUser(null);
+      push(t('users.userUpdated'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+
+  const deleteUser = async (u: any) => {
+    if (!confirm(t('users.deleteConfirm', { name: u.full_name }))) return;
+    try {
+      await api.delete(`/users/${u.id}`);
+      qc.invalidateQueries({ queryKey: ['users'] });
+      push(t('users.userDeleted'));
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
@@ -116,12 +146,14 @@ export default function UsersPage() {
                 <span className="hidden sm:inline text-[11px] text-muted-foreground w-32 truncate">{deptName(u.department_id)}</span>
                 <Badge tone={u.status === 'active' ? 'teal' : 'gray'}>{u.status === 'active' ? t('common.active') : t('common.inactive')}</Badge>
                 {can('users', 'manage') && !u.is_system_owner && (
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end flex-wrap">
+                    {can('users', 'edit') && <button onClick={() => openEdit(u)} className="text-[11px] text-accent">{t('users.editInfo')}</button>}
                     <button onClick={() => setTransferId(u.id)} className="text-[11px] text-accent">{t('users.transfer')}</button>
                     <button onClick={() => resetPassword(u.id)} className="text-[11px] text-accent">{t('users.resetPassword')}</button>
                     <button onClick={() => toggleStatus(u.id, u.status)} className={`text-[11px] ${u.status === 'active' ? 'text-destructive' : 'text-accent'}`}>
                       {u.status === 'active' ? t('users.deactivate') : t('users.activate')}
                     </button>
+                    {isSystemOwner && <button onClick={() => deleteUser(u)} className="text-[11px] text-destructive font-medium">{t('users.deleteUser')}</button>}
                   </div>
                 )}
               </div>
@@ -140,6 +172,26 @@ export default function UsersPage() {
                 <Button type="submit">{t('users.transfer')}</Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!editUser} onOpenChange={(o) => !o && setEditUser(null)}>
+          <DialogContent title={t('users.editUser')}>
+            <div className="flex flex-col gap-3">
+              <div><Label>{t('users.fullName')}</Label><Input value={editData.full_name} onChange={(e) => setEditData({ ...editData, full_name: e.target.value })} /></div>
+              <div><Label>{t('common.phone')}</Label><Input value={editData.phone} onChange={(e) => setEditData({ ...editData, phone: e.target.value })} /></div>
+              <div>
+                <Label>{t('common.department')}</Label>
+                <Select value={editData.department_id} onChange={(e) => setEditData({ ...editData, department_id: e.target.value })}>
+                  <option value="">{t('common.selectPlaceholder')}</option>
+                  {depts?.data.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2 mt-2">
+                <Button type="button" variant="secondary" onClick={() => setEditUser(null)}>{t('common.cancel')}</Button>
+                <Button type="button" onClick={saveEdit}>{t('users.save')}</Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
