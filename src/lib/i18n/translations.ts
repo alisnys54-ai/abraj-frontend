@@ -82,6 +82,10 @@ export const translations = {
       dependsOn: 'Depends on', blocks: 'Blocks', taskNotFound: 'Task not found', taskReassigned: 'Task reassigned',
       editTask: 'Edit Task', deleteTask: 'Delete Task', saveChanges: 'Save Changes',
       deleteConfirm: 'Delete this task? This cannot be undone.', taskDeleted: 'Task deleted', taskUpdated: 'Task updated',
+      accept: 'Accept Task', accepted: 'Task accepted — now in progress',
+      finish: 'Finish Task', finished: 'Submitted for approval',
+      uploadFile: 'Upload file / photo', uploading: 'Uploading…', fileUploaded: 'File uploaded',
+      addAttachment: 'Add attachment', download: 'Download', myTask: 'My Task',
     },
     notifications: {
       title: 'Notifications', markAllRead: 'Mark All Read', noNotifications: 'No notifications',
@@ -193,6 +197,10 @@ export const translations = {
       dependsOn: 'تعتمد على', blocks: 'تحظر', taskNotFound: 'المهمة غير موجودة', taskReassigned: 'تمت إعادة تكليف المهمة',
       editTask: 'تعديل المهمة', deleteTask: 'حذف المهمة', saveChanges: 'حفظ التغييرات',
       deleteConfirm: 'حذف هذه المهمة؟ لا يمكن التراجع.', taskDeleted: 'تم حذف المهمة', taskUpdated: 'تم تحديث المهمة',
+      accept: 'استلام المهمة', accepted: 'تم استلام المهمة — الآن قيد التنفيذ',
+      finish: 'إنهاء المهمة', finished: 'تم إرسالها للاعتماد',
+      uploadFile: 'رفع ملف / صورة', uploading: 'جارِ الرفع…', fileUploaded: 'تم رفع الملف',
+      addAttachment: 'إضافة مرفق', download: 'تنزيل', myTask: 'مهمتي',
     },
     notifications: {
       title: 'الإشعارات', markAllRead: 'تعليم الكل كمقروء', noNotifications: 'لا توجد إشعارات',

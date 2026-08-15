@@ -155,6 +155,32 @@ export default function Page() {
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
 
+  // Simple employee workflow: move to a target status by its name.
+  const moveToStatus = async (statusName: string, successMsg: string) => {
+    const target = statuses?.find((s) => s.name === statusName);
+    if (!target) { push(apiErrorMessage(new Error('status not available')), 'error'); return; }
+    try {
+      await api.post(`/tasks/${id}/status`, { to_status_id: target.id });
+      invalidateAll();
+      push(successMsg);
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+  const acceptTask = () => moveToStatus('in_progress', t('tasks.accepted'));
+  const finishTask = () => moveToStatus('waiting_approval', t('tasks.finished'));
+
+  const [uploading, setUploading] = useState(false);
+  const uploadFile = async (file: File) => {
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      await api.post(`/tasks/${id}/attachments/direct`, form, { headers: { 'Content-Type': 'multipart/form-data' } });
+      qc.invalidateQueries({ queryKey: ['task-attachments', id] });
+      push(t('tasks.fileUploaded'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+    finally { setUploading(false); }
+  };
+
   if (isLoading) return <RequireAuth><Skeleton className="h-64" /></RequireAuth>;
   if (isError || !task) return <RequireAuth><ErrorState title={t('tasks.taskNotFound')} onRetry={() => refetch()} /></RequireAuth>;
 
@@ -184,6 +210,23 @@ export default function Page() {
           <div className="mb-4 rounded-md bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive">
             <div className="font-medium mb-1">{t('tasks.blocked')}</div>
             {(task.blocking_reasons ?? []).map((r, i) => <div key={i}>{r}</div>)}
+          </div>
+        )}
+
+        {/* Simple employee action bar — big, obvious primary action by status */}
+        {can('tasks', 'edit') && (task.status.name === 'pending' || task.status.name === 'in_progress') && (
+          <div className="mb-4 rounded-lg border border-input bg-white p-4 flex flex-wrap items-center gap-3">
+            {task.status.name === 'pending' && (
+              <Button onClick={acceptTask} className="min-w-[160px]">{t('tasks.accept')}</Button>
+            )}
+            {task.status.name === 'in_progress' && (
+              <Button onClick={finishTask} className="min-w-[160px]">{t('tasks.finish')}</Button>
+            )}
+            <label className="inline-flex items-center gap-2 text-xs font-medium text-accent cursor-pointer">
+              <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" disabled={uploading}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.currentTarget.value = ''; }} />
+              📎 {uploading ? t('tasks.uploading') : t('tasks.uploadFile')}
+            </label>
           </div>
         )}
 
@@ -245,11 +288,26 @@ export default function Page() {
 
               <TabsContent value="attachments">
                 <Card className="mt-3"><CardContent>
-                  {attachments?.map((a: any) => (
-                    <div key={a.id} className="flex justify-between text-sm py-1.5 border-t border-input first:border-t-0">
-                      <span>📎 {a.file_name} (v{a.version_number})</span>
-                    </div>
-                  ))}
+                  {can('attachments', 'upload') && (
+                    <label className="inline-flex items-center gap-2 text-xs font-medium text-white bg-primary rounded-md px-3 py-2 cursor-pointer mb-3">
+                      <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" disabled={uploading}
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.currentTarget.value = ''; }} />
+                      📎 {uploading ? t('tasks.uploading') : t('tasks.addAttachment')}
+                    </label>
+                  )}
+                  {attachments?.map((a: any) => {
+                    const isImg = (a.mime_type || '').startsWith('image/');
+                    const fileUrl = `${process.env.NEXT_PUBLIC_API_URL}/attachments/${a.id}/file`;
+                    return (
+                      <div key={a.id} className="flex items-center justify-between gap-3 text-sm py-2 border-t border-input first:border-t-0">
+                        <span className="flex items-center gap-2 min-w-0">
+                          <span>{isImg ? '🖼️' : '📎'}</span>
+                          <span className="truncate">{a.file_name} <span className="text-muted-foreground">(v{a.version_number})</span></span>
+                        </span>
+                        <a href={fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-accent flex-none">{t('tasks.download')}</a>
+                      </div>
+                    );
+                  })}
                   {!attachments?.length && <p className="text-xs text-muted-foreground">{t('tasks.noAttachments')}</p>}
                 </CardContent></Card>
               </TabsContent>
