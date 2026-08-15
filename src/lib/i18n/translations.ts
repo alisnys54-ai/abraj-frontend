@@ -86,6 +86,8 @@ export const translations = {
       finish: 'Finish Task', finished: 'Submitted for approval',
       uploadFile: 'Upload file / photo', uploading: 'Uploading…', fileUploaded: 'File uploaded',
       addAttachment: 'Add attachment', download: 'Download', myTask: 'My Task',
+      actStatus: 'changed the status', actCreated: 'created the task', actAttachment: 'added an attachment',
+      actAttachmentRemoved: 'removed an attachment', actAssignee: 'changed the assignee', actComment: 'added a comment',
     },
     notifications: {
       title: 'Notifications', markAllRead: 'Mark All Read', noNotifications: 'No notifications',
@@ -201,6 +203,8 @@ export const translations = {
       finish: 'إنهاء المهمة', finished: 'تم إرسالها للاعتماد',
       uploadFile: 'رفع ملف / صورة', uploading: 'جارِ الرفع…', fileUploaded: 'تم رفع الملف',
       addAttachment: 'إضافة مرفق', download: 'تنزيل', myTask: 'مهمتي',
+      actStatus: 'غيّر الحالة', actCreated: 'أنشأ المهمة', actAttachment: 'أضاف مرفقاً',
+      actAttachmentRemoved: 'أزال مرفقاً', actAssignee: 'غيّر المكلّف', actComment: 'أضاف تعليقاً',
     },
     notifications: {
       title: 'الإشعارات', markAllRead: 'تعليم الكل كمقروء', noNotifications: 'لا توجد إشعارات',

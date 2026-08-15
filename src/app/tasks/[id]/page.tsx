@@ -165,7 +165,21 @@ export default function Page() {
       push(successMsg);
     } catch (e) { push(apiErrorMessage(e), 'error'); }
   };
-  const acceptTask = () => moveToStatus('in_progress', t('tasks.accepted'));
+  // Accept: draft must first pass through pending, then in_progress.
+  const acceptTask = async () => {
+    if (!task) return;
+    try {
+      if (task.status.name === 'draft') {
+        const pending = statuses?.find((s) => s.name === 'pending');
+        if (pending) await api.post(`/tasks/${id}/status`, { to_status_id: pending.id });
+      }
+      const inProgress = statuses?.find((s) => s.name === 'in_progress');
+      if (!inProgress) throw new Error('status not available');
+      await api.post(`/tasks/${id}/status`, { to_status_id: inProgress.id });
+      invalidateAll();
+      push(t('tasks.accepted'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
   const finishTask = () => moveToStatus('waiting_approval', t('tasks.finished'));
 
   const [uploading, setUploading] = useState(false);
@@ -226,9 +240,9 @@ export default function Page() {
         )}
 
         {/* Simple employee action bar — big, obvious primary action by status */}
-        {can('tasks', 'edit') && (task.status.name === 'pending' || task.status.name === 'in_progress') && (
+        {can('tasks', 'edit') && ['draft', 'pending', 'in_progress'].includes(task.status.name) && (
           <div className="mb-4 rounded-lg border border-input bg-white p-4 flex flex-wrap items-center gap-3">
-            {task.status.name === 'pending' && (
+            {(task.status.name === 'draft' || task.status.name === 'pending') && (
               <Button onClick={acceptTask} className="min-w-[160px]">{t('tasks.accept')}</Button>
             )}
             {task.status.name === 'in_progress' && (
@@ -326,12 +340,27 @@ export default function Page() {
 
               <TabsContent value="activity">
                 <Card className="mt-3"><CardContent>
-                  {history?.data?.map((h: any) => (
-                    <div key={h.id} className="flex justify-between text-xs py-1.5 border-t border-input first:border-t-0">
-                      <span>{h.action.replace(/_/g, ' ')}{h.field_name ? ` — ${h.field_name}` : ''}</span>
-                      <span className="text-muted-foreground">{formatDate(h.created_at)}</span>
-                    </div>
-                  ))}
+                  {history?.data?.map((h: any) => {
+                    const actionLabel: Record<string, string> = {
+                      status_changed: t('tasks.actStatus'),
+                      task_created: t('tasks.actCreated'),
+                      attachment_added: t('tasks.actAttachment'),
+                      attachment_removed: t('tasks.actAttachmentRemoved'),
+                      assignee_changed: t('tasks.actAssignee'),
+                      comment_added: t('tasks.actComment'),
+                    };
+                    const label = actionLabel[h.action] ?? h.action.replace(/_/g, ' ');
+                    const detail = h.action === 'status_changed' && h.new_value ? `: ${h.new_value.replace(/_/g, ' ')}` : '';
+                    return (
+                      <div key={h.id} className="flex items-start justify-between gap-3 text-xs py-2 border-t border-input first:border-t-0">
+                        <span className="min-w-0">
+                          {h.actor?.full_name && <span className="font-medium">{h.actor.full_name} </span>}
+                          <span className="text-muted-foreground">{label}{detail}</span>
+                        </span>
+                        <span className="text-muted-foreground flex-none">{formatDate(h.created_at)}</span>
+                      </div>
+                    );
+                  })}
                   {!history?.data?.length && <p className="text-xs text-muted-foreground">{t('tasks.noActivity')}</p>}
                 </CardContent></Card>
               </TabsContent>
