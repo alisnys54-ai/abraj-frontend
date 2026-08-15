@@ -174,7 +174,10 @@ export default function Page() {
     try {
       const form = new FormData();
       form.append('file', file);
-      await api.post(`/tasks/${id}/attachments/direct`, form, { headers: { 'Content-Type': 'multipart/form-data' } });
+      // Do NOT set Content-Type manually — the browser must set it to
+      // multipart/form-data WITH the boundary. Forcing it drops the boundary
+      // and the server rejects the body (can surface as 401/400).
+      await api.post(`/tasks/${id}/attachments/direct`, form);
       qc.invalidateQueries({ queryKey: ['task-attachments', id] });
       push(t('tasks.fileUploaded'));
     } catch (e) { push(apiErrorMessage(e), 'error'); }
