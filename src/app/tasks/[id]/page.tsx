@@ -170,14 +170,23 @@ export default function Page() {
 
   const [uploading, setUploading] = useState(false);
   const uploadFile = async (file: File) => {
+    if (file.size > 50 * 1024 * 1024) { push(apiErrorMessage(new Error('الملف أكبر من 50 ميغابايت')), 'error'); return; }
     setUploading(true);
     try {
-      const form = new FormData();
-      form.append('file', file);
-      // Do NOT set Content-Type manually — the browser must set it to
-      // multipart/form-data WITH the boundary. Forcing it drops the boundary
-      // and the server rejects the body (can surface as 401/400).
-      await api.post(`/tasks/${id}/attachments/direct`, form);
+      // Read the file as a base64 data URL and send it as plain JSON — this
+      // rides the same request path as every other working call (no multipart
+      // quirks with auth/guards).
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('read failed'));
+        reader.readAsDataURL(file);
+      });
+      await api.post(`/tasks/${id}/attachments/base64`, {
+        file_name: file.name,
+        mime_type: file.type || undefined,
+        data_base64: dataUrl,
+      });
       qc.invalidateQueries({ queryKey: ['task-attachments', id] });
       push(t('tasks.fileUploaded'));
     } catch (e) { push(apiErrorMessage(e), 'error'); }
