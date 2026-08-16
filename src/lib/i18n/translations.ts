@@ -103,6 +103,7 @@ export const translations = {
       rejectPrompt: 'Please explain what needs to change:', approved: 'Approved', rejectedMsg: 'Rejected — sent back',
       addNote: 'Add note for the employee', notePlaceholder: 'Write a note or feedback…', noteSent: 'Note added',
       pendingMyReview: 'Awaiting my review', reviewWork: 'Review Work', view: 'View',
+      deleteFile: 'Delete', deleteFileConfirm: 'Delete this file?', fileDeleted: 'File deleted',
     },
     notifications: {
       title: 'Notifications', markAllRead: 'Mark All Read', noNotifications: 'No notifications',
@@ -121,6 +122,7 @@ export const translations = {
       title: 'Files', subtitle: 'All files uploaded across tasks', noFiles: 'No files uploaded yet',
       searchPlaceholder: 'Search file name…', allUsers: 'All uploaders', uploadedBy: 'Uploaded by',
       task: 'Task', date: 'Date', view: 'View', recentFiles: 'Recent Files', viewAll: 'View all', download: 'Download',
+      delete: 'Delete', deleteConfirm: 'Delete this file?', fileDeleted: 'File deleted',
     },
     settings: {
       title: 'Company Settings', companyInfo: 'Company Information', language: 'Language',
@@ -240,6 +242,7 @@ export const translations = {
       rejectPrompt: 'وضّح ما الذي يحتاج تعديلاً:', approved: 'تمت الموافقة', rejectedMsg: 'تم الرفض — أُرجع للتعديل',
       addNote: 'إضافة ملاحظة للموظف', notePlaceholder: 'اكتب ملاحظة أو توجيهاً…', noteSent: 'تمت إضافة الملاحظة',
       pendingMyReview: 'بانتظار مراجعتي', reviewWork: 'مراجعة الشغل', view: 'عرض',
+      deleteFile: 'حذف', deleteFileConfirm: 'حذف هذا الملف؟', fileDeleted: 'تم حذف الملف',
     },
     notifications: {
       title: 'الإشعارات', markAllRead: 'تعليم الكل كمقروء', noNotifications: 'لا توجد إشعارات',
@@ -258,6 +261,7 @@ export const translations = {
       title: 'الملفات', subtitle: 'كل الملفات المرفوعة على المهام', noFiles: 'لا توجد ملفات مرفوعة بعد',
       searchPlaceholder: 'ابحث باسم الملف…', allUsers: 'كل الرافعين', uploadedBy: 'رفعه',
       task: 'المهمة', date: 'التاريخ', view: 'عرض', recentFiles: 'أحدث الملفات', viewAll: 'عرض الكل', download: 'تنزيل',
+      delete: 'حذف', deleteConfirm: 'حذف هذا الملف؟', fileDeleted: 'تم حذف الملف',
     },
     settings: {
       title: 'إعدادات الشركة', companyInfo: 'معلومات الشركة', language: 'اللغة',

@@ -261,6 +261,15 @@ export default function Page() {
     finally { setUploading(false); }
   };
 
+  const deleteAttachment = async (attachmentId: string) => {
+    if (!confirm(t('tasks.deleteFileConfirm'))) return;
+    try {
+      await api.delete(`/attachments/${attachmentId}`);
+      qc.invalidateQueries({ queryKey: ['task-attachments', id] });
+      push(t('tasks.fileDeleted'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+
   if (isLoading) return <RequireAuth><Skeleton className="h-64" /></RequireAuth>;
   if (isError || !task) return <RequireAuth><ErrorState title={t('tasks.taskNotFound')} onRetry={() => refetch()} /></RequireAuth>;
 
@@ -397,6 +406,9 @@ export default function Page() {
                         <span className="flex items-center gap-3 flex-none">
                           <a href={fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-accent">{t('tasks.view')}</a>
                           <a href={`${fileUrl}?download=1`} className="text-[11px] text-accent font-medium">⬇ {t('tasks.download')}</a>
+                          {(a.uploader_id === user?.id || can('attachments', 'delete')) && (
+                            <button onClick={() => deleteAttachment(a.id)} className="text-[11px] text-destructive">{t('tasks.deleteFile')}</button>
+                          )}
                         </span>
                       </div>
                     );

@@ -3,6 +3,11 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { RequireAuth } from '@/components/layout/require-auth';
 import { useFiles, useUsers } from '@/hooks/use-resources';
+import { useAuth } from '@/hooks/use-auth';
+import { usePermission } from '@/hooks/use-permission';
+import { useQueryClient } from '@tanstack/react-query';
+import { api, apiErrorMessage } from '@/lib/api-client';
+import { useToast } from '@/components/ui/toast';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -19,6 +24,19 @@ export default function FilesPage() {
   const [userId, setUserId] = useState('');
   const { data: users } = useUsers({ page: 1, page_size: 200 });
   const { data, isLoading } = useFiles({ page, page_size: 30, search: search || undefined, user_id: userId || undefined });
+  const { user } = useAuth();
+  const { can } = usePermission();
+  const { push } = useToast();
+  const qc = useQueryClient();
+
+  const deleteFile = async (fileId: string) => {
+    if (!confirm(t('files.deleteConfirm'))) return;
+    try {
+      await api.delete(`/attachments/${fileId}`);
+      qc.invalidateQueries({ queryKey: ['files'] });
+      push(t('files.fileDeleted'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
 
   return (
     <RequireAuth>
@@ -64,6 +82,9 @@ export default function FilesPage() {
                   <span className="flex items-center gap-3">
                     <a href={fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-accent">{t('files.view')}</a>
                     <a href={`${fileUrl}?download=1`} className="text-[11px] text-accent font-medium">⬇ {t('files.download')}</a>
+                    {(f.uploader?.id === user?.id || can('attachments', 'delete')) && (
+                      <button onClick={() => deleteFile(f.id)} className="text-[11px] text-destructive">{t('files.delete')}</button>
+                    )}
                   </span>
                 </div>
               );
