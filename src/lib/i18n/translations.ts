@@ -95,6 +95,11 @@ export const translations = {
       actStatus: 'changed the status', actCreated: 'created the task', actAttachment: 'added an attachment',
       actAttachmentRemoved: 'removed an attachment', actAssignee: 'changed the assignee', actComment: 'added a comment',
       takePhoto: 'Camera', fromGallery: 'Photo Gallery', fromFiles: 'Files', chooseSource: 'Add photo or file',
+      approve: 'Approve', reject: 'Reject', underReview: 'Under Review',
+      approveConfirm: 'Approve this work?', rejectReason: 'Reason for rejection',
+      rejectPrompt: 'Please explain what needs to change:', approved: 'Approved', rejectedMsg: 'Rejected — sent back',
+      addNote: 'Add note for the employee', notePlaceholder: 'Write a note or feedback…', noteSent: 'Note added',
+      pendingMyReview: 'Awaiting my review', reviewWork: 'Review Work',
     },
     notifications: {
       title: 'Notifications', markAllRead: 'Mark All Read', noNotifications: 'No notifications',
@@ -219,6 +224,11 @@ export const translations = {
       actStatus: 'غيّر الحالة', actCreated: 'أنشأ المهمة', actAttachment: 'أضاف مرفقاً',
       actAttachmentRemoved: 'أزال مرفقاً', actAssignee: 'غيّر المكلّف', actComment: 'أضاف تعليقاً',
       takePhoto: 'الكاميرا', fromGallery: 'معرض الصور', fromFiles: 'الملفات', chooseSource: 'إضافة صورة أو ملف',
+      approve: 'موافقة', reject: 'رفض', underReview: 'قيد المراجعة',
+      approveConfirm: 'الموافقة على هذا الشغل؟', rejectReason: 'سبب الرفض',
+      rejectPrompt: 'وضّح ما الذي يحتاج تعديلاً:', approved: 'تمت الموافقة', rejectedMsg: 'تم الرفض — أُرجع للتعديل',
+      addNote: 'إضافة ملاحظة للموظف', notePlaceholder: 'اكتب ملاحظة أو توجيهاً…', noteSent: 'تمت إضافة الملاحظة',
+      pendingMyReview: 'بانتظار مراجعتي', reviewWork: 'مراجعة الشغل',
     },
     notifications: {
       title: 'الإشعارات', markAllRead: 'تعليم الكل كمقروء', noNotifications: 'لا توجد إشعارات',

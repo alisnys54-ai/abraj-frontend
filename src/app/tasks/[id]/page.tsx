@@ -183,6 +183,30 @@ export default function Page() {
   };
   const finishTask = () => moveToStatus('waiting_approval', t('tasks.finished'));
 
+  // Manager review actions (shown when task is waiting_approval and the user
+  // can approve). Approve -> completed; Reject -> rejected (reason required).
+  const approveWork = async () => {
+    const completed = statuses?.find((s) => s.name === 'completed');
+    if (!completed) return;
+    try {
+      await api.post(`/tasks/${id}/status`, { to_status_id: completed.id });
+      invalidateAll();
+      push(t('tasks.approved'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+  const rejectWork = async () => {
+    const rejected = statuses?.find((s) => s.name === 'rejected');
+    if (!rejected) return;
+    const why = window.prompt(t('tasks.rejectPrompt'));
+    if (why === null) return; // cancelled
+    if (!why.trim()) { push(apiErrorMessage(new Error(t('tasks.rejectReason'))), 'error'); return; }
+    try {
+      await api.post(`/tasks/${id}/status`, { to_status_id: rejected.id, reason: why.trim() });
+      invalidateAll();
+      push(t('tasks.rejectedMsg'));
+    } catch (e) { push(apiErrorMessage(e), 'error'); }
+  };
+
   const [uploading, setUploading] = useState(false);
 
   // Downscale/compress images in the browser before upload so the base64
@@ -279,6 +303,21 @@ export default function Page() {
               <Button onClick={finishTask} className="min-w-[160px]">{t('tasks.finish')}</Button>
             )}
             <UploadMenu onPick={uploadFile} uploading={uploading} label={t('tasks.uploadFile')} variant="link" />
+          </div>
+        )}
+
+        {/* Manager review bar — appears when work is submitted (waiting_approval)
+            and the user can approve. Clear Approve / Reject actions. */}
+        {can('tasks', 'approve') && task.status.name === 'waiting_approval' && (
+          <div className="mb-4 rounded-lg border-2 border-gold/40 bg-gold/5 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-flex items-center rounded-full bg-gold/25 text-[#8a6d00] px-2.5 py-0.5 text-xs font-medium">{t('tasks.underReview')}</span>
+              <span className="text-xs text-muted-foreground">{t('tasks.reviewWork')}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button onClick={approveWork} className="min-w-[140px]">{t('tasks.approve')}</Button>
+              <Button onClick={rejectWork} variant="outline" className="min-w-[140px] text-destructive border-destructive/40">{t('tasks.reject')}</Button>
+            </div>
           </div>
         )}
 
