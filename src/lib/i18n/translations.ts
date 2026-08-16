@@ -102,7 +102,7 @@ export const translations = {
       approveConfirm: 'Approve this work?', rejectReason: 'Reason for rejection',
       rejectPrompt: 'Please explain what needs to change:', approved: 'Approved', rejectedMsg: 'Rejected — sent back',
       addNote: 'Add note for the employee', notePlaceholder: 'Write a note or feedback…', noteSent: 'Note added',
-      pendingMyReview: 'Awaiting my review', reviewWork: 'Review Work',
+      pendingMyReview: 'Awaiting my review', reviewWork: 'Review Work', view: 'View',
     },
     notifications: {
       title: 'Notifications', markAllRead: 'Mark All Read', noNotifications: 'No notifications',
@@ -120,7 +120,7 @@ export const translations = {
     files: {
       title: 'Files', subtitle: 'All files uploaded across tasks', noFiles: 'No files uploaded yet',
       searchPlaceholder: 'Search file name…', allUsers: 'All uploaders', uploadedBy: 'Uploaded by',
-      task: 'Task', date: 'Date', view: 'View', recentFiles: 'Recent Files', viewAll: 'View all',
+      task: 'Task', date: 'Date', view: 'View', recentFiles: 'Recent Files', viewAll: 'View all', download: 'Download',
     },
     settings: {
       title: 'Company Settings', companyInfo: 'Company Information', language: 'Language',
@@ -239,7 +239,7 @@ export const translations = {
       approveConfirm: 'الموافقة على هذا الشغل؟', rejectReason: 'سبب الرفض',
       rejectPrompt: 'وضّح ما الذي يحتاج تعديلاً:', approved: 'تمت الموافقة', rejectedMsg: 'تم الرفض — أُرجع للتعديل',
       addNote: 'إضافة ملاحظة للموظف', notePlaceholder: 'اكتب ملاحظة أو توجيهاً…', noteSent: 'تمت إضافة الملاحظة',
-      pendingMyReview: 'بانتظار مراجعتي', reviewWork: 'مراجعة الشغل',
+      pendingMyReview: 'بانتظار مراجعتي', reviewWork: 'مراجعة الشغل', view: 'عرض',
     },
     notifications: {
       title: 'الإشعارات', markAllRead: 'تعليم الكل كمقروء', noNotifications: 'لا توجد إشعارات',
@@ -257,7 +257,7 @@ export const translations = {
     files: {
       title: 'الملفات', subtitle: 'كل الملفات المرفوعة على المهام', noFiles: 'لا توجد ملفات مرفوعة بعد',
       searchPlaceholder: 'ابحث باسم الملف…', allUsers: 'كل الرافعين', uploadedBy: 'رفعه',
-      task: 'المهمة', date: 'التاريخ', view: 'عرض', recentFiles: 'أحدث الملفات', viewAll: 'عرض الكل',
+      task: 'المهمة', date: 'التاريخ', view: 'عرض', recentFiles: 'أحدث الملفات', viewAll: 'عرض الكل', download: 'تنزيل',
     },
     settings: {
       title: 'إعدادات الشركة', companyInfo: 'معلومات الشركة', language: 'اللغة',

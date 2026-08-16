@@ -61,7 +61,10 @@ export default function FilesPage() {
                     {f.task ? <Link href={`/tasks/${f.task.id}`} className="text-accent">{f.task.title}</Link> : '—'}
                   </span>
                   <span className="w-32 text-[11px] text-muted-foreground">{formatDate(f.created_at)}</span>
-                  <a href={fileUrl} target="_blank" rel="noreferrer" className="w-16 text-[11px] text-accent">{t('files.view')}</a>
+                  <span className="flex items-center gap-3">
+                    <a href={fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-accent">{t('files.view')}</a>
+                    <a href={`${fileUrl}?download=1`} className="text-[11px] text-accent font-medium">⬇ {t('files.download')}</a>
+                  </span>
                 </div>
               );
             })}

@@ -394,7 +394,10 @@ export default function Page() {
                           <span>{isImg ? '🖼️' : '📎'}</span>
                           <span className="truncate">{a.file_name} <span className="text-muted-foreground">(v{a.version_number})</span></span>
                         </span>
-                        <a href={fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-accent flex-none">{t('tasks.download')}</a>
+                        <span className="flex items-center gap-3 flex-none">
+                          <a href={fileUrl} target="_blank" rel="noreferrer" className="text-[11px] text-accent">{t('tasks.view')}</a>
+                          <a href={`${fileUrl}?download=1`} className="text-[11px] text-accent font-medium">⬇ {t('tasks.download')}</a>
+                        </span>
                       </div>
                     );
                   })}
