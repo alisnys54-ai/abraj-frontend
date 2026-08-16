@@ -1,10 +1,14 @@
 'use client';
+import Link from 'next/link';
 import { RequireAuth } from '@/components/layout/require-auth';
 import { useAuth } from '@/hooks/use-auth';
-import { useDashboard } from '@/hooks/use-resources';
+import { useDashboard, useFiles } from '@/hooks/use-resources';
+import { useTasks } from '@/hooks/use-tasks';
+import { usePermission } from '@/hooks/use-permission';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDate } from '@/lib/utils';
 
 function Kpi({ label, value }: { label: string; value: string | number }) {
   return (
@@ -15,8 +19,16 @@ function Kpi({ label, value }: { label: string; value: string | number }) {
 export default function DashboardPage() {
   const { user } = useAuth();
   const { t } = useLocale();
+  const { can } = usePermission();
   const kind = user?.is_system_owner ? 'executive' : user?.role?.name === 'Department Manager' ? 'team' : 'personal';
   const { data, isLoading, isError, refetch } = useDashboard(kind);
+
+  // Managers who can approve get a "pending my review" queue + recent files.
+  const canApprove = can('tasks', 'approve');
+  const { data: reviewData } = useTasks(canApprove ? { page: 1, page_size: 5, status: 'waiting_approval' } : { page: 1, page_size: 1, status: '__none__' });
+  const { data: filesData } = useFiles(canApprove ? { page: 1, page_size: 5 } : { page: 1, page_size: 1 });
+  const reviewTasks = canApprove ? (reviewData?.data ?? []) : [];
+  const recentFiles = canApprove ? (filesData?.data ?? []) : [];
 
   // Defensive: the three dashboard shapes differ (personal returns only kpis),
   // and any section may be absent. Coerce everything to safe shapes so a
@@ -47,6 +59,51 @@ export default function DashboardPage() {
               <Kpi label={t('dashboard.completed')} value={Number(kpis.completed ?? 0)} />
               <Kpi label={t('dashboard.overdue')} value={Number(kpis.overdue ?? 0)} />
             </div>
+
+            {canApprove && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* Awaiting my review */}
+                <Card>
+                  <CardContent>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-medium">{t('dashboard.pendingReview')}</span>
+                      {reviewTasks.length > 0 && <span className="inline-flex items-center justify-center rounded-full bg-gold/25 text-[#8a6d00] w-5 h-5 text-[11px] font-bold">{reviewTasks.length}</span>}
+                    </div>
+                    {reviewTasks.length === 0 && <p className="text-[11px] text-muted-foreground">{t('dashboard.noPendingReview')}</p>}
+                    <div className="flex flex-col gap-2">
+                      {reviewTasks.map((tk: any) => (
+                        <Link key={tk.id} href={`/tasks/${tk.id}`} className="flex items-center justify-between text-xs hover:bg-muted rounded px-2 py-1.5 -mx-2">
+                          <span className="truncate flex-1">{tk.title}</span>
+                          <span className="text-[10px] text-muted-foreground">{tk.assignee?.full_name ?? ''}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent files */}
+                <Card>
+                  <CardContent>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-medium">{t('dashboard.recentFiles')}</span>
+                      <Link href="/files" className="text-[11px] text-accent">{t('dashboard.viewAll')}</Link>
+                    </div>
+                    {recentFiles.length === 0 && <p className="text-[11px] text-muted-foreground">{t('dashboard.noRecentFiles')}</p>}
+                    <div className="flex flex-col gap-2">
+                      {recentFiles.map((f: any) => (
+                        <div key={f.id} className="flex items-center justify-between text-xs">
+                          <span className="flex items-center gap-1.5 truncate flex-1">
+                            <span>{(f.mime_type || '').startsWith('image/') ? '🖼️' : '📄'}</span>
+                            <span className="truncate">{f.file_name}</span>
+                          </span>
+                          <span className="text-[10px] text-muted-foreground flex-none">{f.uploader?.full_name ?? ''}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {departments.length > 0 && (
               <Card className="mb-4">

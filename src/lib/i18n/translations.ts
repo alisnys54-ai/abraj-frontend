@@ -34,6 +34,8 @@ export const translations = {
       welcomeBack: 'Welcome back', totalTasks: 'Total Tasks', active: 'Active', completed: 'Completed',
       overdue: 'Overdue', departmentLoad: 'Department Load', teamWorkload: 'Team Workload',
       overdueByPriority: 'By priority',
+      pendingReview: 'Awaiting my review', noPendingReview: 'Nothing awaiting review',
+      recentFiles: 'Recent Files', noRecentFiles: 'No files yet', viewAll: 'View all',
     },
     users: {
       title: 'Users', newUser: 'New User', createUser: 'Create User', fullName: 'Full name',
@@ -169,6 +171,8 @@ export const translations = {
       welcomeBack: 'مرحباً بعودتك', totalTasks: 'إجمالي المهام', active: 'نشطة', completed: 'مكتملة',
       overdue: 'متأخرة', departmentLoad: 'حمل الأقسام', teamWorkload: 'حمل الفريق',
       overdueByPriority: 'حسب الأولوية',
+      pendingReview: 'بانتظار مراجعتي', noPendingReview: 'لا يوجد شغل ينتظر المراجعة',
+      recentFiles: 'أحدث الملفات', noRecentFiles: 'لا توجد ملفات بعد', viewAll: 'عرض الكل',
     },
     users: {
       title: 'المستخدمون', newUser: 'مستخدم جديد', createUser: 'إنشاء مستخدم', fullName: 'الاسم الكامل',
