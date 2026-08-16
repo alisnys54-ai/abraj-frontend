@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, ListTodo, KanbanSquare, CalendarDays, Building2, IdCard, Users, ShieldCheck, Bell, BarChart3, User as UserIcon, Settings as SettingsIcon, ScrollText, LogOut, Menu, X, Languages } from 'lucide-react';
+import { LayoutDashboard, ListTodo, KanbanSquare, CalendarDays, Building2, IdCard, Users, ShieldCheck, Bell, BarChart3, User as UserIcon, Settings as SettingsIcon, ScrollText, FolderOpen, LogOut, Menu, X, Languages } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { usePermission } from '@/hooks/use-permission';
 import { useLocale } from '@/lib/i18n/locale-context';
@@ -21,6 +21,7 @@ const NAV = [
   { href: '/roles', key: 'nav.roles', icon: ShieldCheck, module: 'roles', action: 'view' },
   { href: '/notifications', key: 'nav.notifications', icon: Bell },
   { href: '/reports', key: 'nav.reports', icon: BarChart3, module: 'reports', action: 'view' },
+  { href: '/files', key: 'nav.files', icon: FolderOpen, module: 'attachments', action: 'view' },
   { href: '/audit-logs', key: 'nav.auditLogs', icon: ScrollText, module: 'activity-logs', action: 'view' },
   { href: '/settings', key: 'nav.settings', icon: SettingsIcon, module: 'settings', action: 'view' },
 ];

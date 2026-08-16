@@ -37,6 +37,9 @@ export function useNotifications(params: Record<string, unknown> = {}) {
 export function useActivityLog(params: Record<string, unknown> = {}) {
   return useQuery({ queryKey: ['activity-log', params], queryFn: async () => (await api.get('/activity-logs', { params })).data });
 }
+export function useFiles(params: Record<string, unknown> = {}) {
+  return useQuery({ queryKey: ['files', params], queryFn: async () => (await api.get('/attachments', { params })).data });
+}
 export function useDashboard(kind: 'executive' | 'team' | 'personal', params: Record<string, unknown> = {}) {
   return useQuery({ queryKey: ['dashboard', kind, params], queryFn: async () => (await api.get(`/dashboard/${kind}`, { params })).data });
 }

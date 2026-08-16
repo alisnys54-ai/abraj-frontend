@@ -23,6 +23,7 @@ export const translations = {
       dashboard: 'Dashboard', tasks: 'Tasks', kanban: 'Kanban', calendar: 'Calendar',
       departments: 'Departments', positions: 'Positions', users: 'Users', roles: 'Roles',
       notifications: 'Notifications', reports: 'Reports', auditLogs: 'Audit Logs', settings: 'Settings',
+      files: 'Files',
       profile: 'My Profile', myProfile: 'My Profile',
     },
     auth: {
@@ -114,6 +115,11 @@ export const translations = {
     auditLogs: {
       title: 'Audit Logs', noActivity: 'No activity found', searchPlaceholder: 'Search action…', allUsers: 'All users', system: 'System',
     },
+    files: {
+      title: 'Files', subtitle: 'All files uploaded across tasks', noFiles: 'No files uploaded yet',
+      searchPlaceholder: 'Search file name…', allUsers: 'All uploaders', uploadedBy: 'Uploaded by',
+      task: 'Task', date: 'Date', view: 'View', recentFiles: 'Recent Files', viewAll: 'View all',
+    },
     settings: {
       title: 'Company Settings', companyInfo: 'Company Information', language: 'Language',
       systemOwnerOnly: 'System Owner only', systemOwnerOnlyDesc: 'Company settings can only be changed by the System Owner.',
@@ -152,6 +158,7 @@ export const translations = {
       dashboard: 'لوحة التحكم', tasks: 'المهام', kanban: 'كانبان', calendar: 'التقويم',
       departments: 'الأقسام', positions: 'المناصب', users: 'المستخدمون', roles: 'الأدوار',
       notifications: 'الإشعارات', reports: 'التقارير', auditLogs: 'سجل النشاطات', settings: 'الإعدادات',
+      files: 'الملفات',
       profile: 'حسابي', myProfile: 'حسابي',
     },
     auth: {
@@ -242,6 +249,11 @@ export const translations = {
     },
     auditLogs: {
       title: 'سجل النشاطات', noActivity: 'لا يوجد نشاط', searchPlaceholder: 'ابحث عن إجراء…', allUsers: 'كل المستخدمين', system: 'النظام',
+    },
+    files: {
+      title: 'الملفات', subtitle: 'كل الملفات المرفوعة على المهام', noFiles: 'لا توجد ملفات مرفوعة بعد',
+      searchPlaceholder: 'ابحث باسم الملف…', allUsers: 'كل الرافعين', uploadedBy: 'رفعه',
+      task: 'المهمة', date: 'التاريخ', view: 'عرض', recentFiles: 'أحدث الملفات', viewAll: 'عرض الكل',
     },
     settings: {
       title: 'إعدادات الشركة', companyInfo: 'معلومات الشركة', language: 'اللغة',
