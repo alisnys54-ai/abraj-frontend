@@ -317,6 +317,7 @@ export default function Page() {
             <div className="flex flex-wrap items-center gap-3">
               <Button onClick={approveWork} className="min-w-[140px]">{t('tasks.approve')}</Button>
               <Button onClick={rejectWork} variant="outline" className="min-w-[140px] text-destructive border-destructive/40">{t('tasks.reject')}</Button>
+              <button onClick={() => { const el = document.getElementById('comment-box'); el?.scrollIntoView({ behavior: 'smooth' }); (el as HTMLTextAreaElement)?.focus(); }} className="text-xs text-accent">💬 {t('tasks.addNote')}</button>
             </div>
           </div>
         )}
@@ -372,7 +373,7 @@ export default function Page() {
                     ))}
                     {!comments?.data?.length && <p className="text-xs text-muted-foreground">{t('tasks.noComments')}</p>}
                   </div>
-                  <Textarea value={commentBody} onChange={(e) => setCommentBody(e.target.value)} placeholder={t('tasks.writeComment')} className="mb-2" />
+                  <Textarea id="comment-box" value={commentBody} onChange={(e) => setCommentBody(e.target.value)} placeholder={t('tasks.writeComment')} className="mb-2" />
                   <Button size="sm" onClick={postComment}>{t('tasks.post')}</Button>
                 </CardContent></Card>
               </TabsContent>

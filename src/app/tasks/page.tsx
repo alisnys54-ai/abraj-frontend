@@ -33,11 +33,11 @@ export default function TasksPage() {
           <Input placeholder={t('tasks.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="max-w-[220px]" />
           <Select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className="max-w-[160px]">
             <option value="">{t('tasks.allStatuses')}</option>
-            {['draft', 'pending', 'in_progress', 'on_hold', 'waiting_approval', 'completed', 'rejected', 'cancelled', 'archived'].map((s) => <option key={s} value={s}>{s}</option>)}
+            {['draft', 'pending', 'in_progress', 'on_hold', 'waiting_approval', 'completed', 'rejected', 'cancelled', 'archived'].map((s) => <option key={s} value={s}>{t(`common.statusNames.${s}`)}</option>)}
           </Select>
           <Select value={priority} onChange={(e) => { setPriority(e.target.value); setPage(1); }} className="max-w-[140px]">
             <option value="">{t('tasks.allPriorities')}</option>
-            {['low', 'medium', 'high', 'critical'].map((p) => <option key={p} value={p}>{p}</option>)}
+            {['low', 'medium', 'high', 'critical'].map((p) => <option key={p} value={p}>{t(`common.priorityNames.${p}`)}</option>)}
           </Select>
         </div>
 
