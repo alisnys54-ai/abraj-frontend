@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import type { HTMLAttributes } from 'react';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 const TONE: Record<string, string> = {
   slate: 'bg-secondary/10 text-secondary',
@@ -18,10 +19,14 @@ const STATUS_TONE: Record<string, keyof typeof TONE> = {
   waiting_approval: 'gold', completed: 'teal', rejected: 'red', cancelled: 'gray', archived: 'gray',
 };
 export function StatusBadge({ name }: { name: string }) {
-  return <Badge tone={STATUS_TONE[name] ?? 'gray'}>{name.replace(/_/g, ' ')}</Badge>;
+  const { t } = useLocale();
+  const label = t(`common.statusNames.${name}`);
+  return <Badge tone={STATUS_TONE[name] ?? 'gray'}>{label && !label.includes('.') ? label : name.replace(/_/g, ' ')}</Badge>;
 }
 
 const PRIORITY_TONE: Record<string, keyof typeof TONE> = { low: 'slate', medium: 'gold', high: 'gold', critical: 'red' };
 export function PriorityBadge({ name }: { name: string }) {
-  return <Badge tone={PRIORITY_TONE[name] ?? 'gray'}>{name}</Badge>;
+  const { t } = useLocale();
+  const label = t(`common.priorityNames.${name}`);
+  return <Badge tone={PRIORITY_TONE[name] ?? 'gray'}>{label && !label.includes('.') ? label : name}</Badge>;
 }

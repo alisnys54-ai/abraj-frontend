@@ -5,6 +5,12 @@ export const translations = {
     common: {
       save: 'Save', cancel: 'Cancel', create: 'Create', edit: 'Edit', delete: 'Delete',
       confirm: 'Confirm', close: 'Close', retry: 'Retry', loading: 'Loading…', search: 'Search',
+      statusNames: {
+        draft: 'Draft', pending: 'Pending', in_progress: 'In Progress', on_hold: 'On Hold',
+        waiting_approval: 'Awaiting Approval', completed: 'Completed', rejected: 'Rejected',
+        cancelled: 'Cancelled', archived: 'Archived',
+      },
+      priorityNames: { low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical' },
       actions: 'Actions', status: 'Status', active: 'Active', inactive: 'Inactive',
       name: 'Name', description: 'Description', email: 'Email', phone: 'Phone',
       department: 'Department', position: 'Position', role: 'Role', optional: 'Optional',
@@ -122,6 +128,12 @@ export const translations = {
     common: {
       save: 'حفظ', cancel: 'إلغاء', create: 'إنشاء', edit: 'تعديل', delete: 'حذف',
       confirm: 'تأكيد', close: 'إغلاق', retry: 'إعادة المحاولة', loading: 'جارِ التحميل…', search: 'بحث',
+      statusNames: {
+        draft: 'مسودة', pending: 'بانتظار', in_progress: 'قيد التنفيذ', on_hold: 'معلّقة',
+        waiting_approval: 'بانتظار الموافقة', completed: 'مكتملة', rejected: 'مرفوضة',
+        cancelled: 'ملغاة', archived: 'مؤرشفة',
+      },
+      priorityNames: { low: 'منخفضة', medium: 'متوسطة', high: 'عالية', critical: 'حرجة' },
       actions: 'إجراءات', status: 'الحالة', active: 'نشط', inactive: 'غير نشط',
       name: 'الاسم', description: 'الوصف', email: 'البريد الإلكتروني', phone: 'الهاتف',
       department: 'القسم', position: 'المنصب', role: 'الدور', optional: 'اختياري',
