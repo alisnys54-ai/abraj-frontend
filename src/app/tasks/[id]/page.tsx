@@ -183,22 +183,51 @@ export default function Page() {
   const finishTask = () => moveToStatus('waiting_approval', t('tasks.finished'));
 
   const [uploading, setUploading] = useState(false);
+
+  // Downscale/compress images in the browser before upload so the base64
+  // payload stays small (large requests were being rejected upstream).
+  const compressImage = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const maxDim = 1600;
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const scale = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('canvas unsupported')); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+    img.src = url;
+  });
+
+  const readAsDataUrl = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.readAsDataURL(file);
+  });
+
   const uploadFile = async (file: File) => {
-    if (file.size > 50 * 1024 * 1024) { push(apiErrorMessage(new Error('الملف أكبر من 50 ميغابايت')), 'error'); return; }
+    if (file.size > 25 * 1024 * 1024) { push(apiErrorMessage(new Error('الملف أكبر من 25 ميغابايت')), 'error'); return; }
     setUploading(true);
     try {
-      // Read the file as a base64 data URL and send it as plain JSON — this
-      // rides the same request path as every other working call (no multipart
-      // quirks with auth/guards).
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => reject(new Error('read failed'));
-        reader.readAsDataURL(file);
-      });
+      const isImage = file.type.startsWith('image/');
+      // Compress images; send other files as-is (base64).
+      const dataUrl = isImage ? await compressImage(file) : await readAsDataUrl(file);
+      const mime = isImage ? 'image/jpeg' : (file.type || undefined);
+      const name = isImage ? file.name.replace(/\.[^.]+$/, '') + '.jpg' : file.name;
       await api.post(`/tasks/${id}/attachments/base64`, {
-        file_name: file.name,
-        mime_type: file.type || undefined,
+        file_name: name,
+        mime_type: mime,
         data_base64: dataUrl,
       });
       qc.invalidateQueries({ queryKey: ['task-attachments', id] });
