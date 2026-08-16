@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorState } from '@/components/shared/states';
+import { UploadMenu } from '@/components/shared/upload-menu';
 import { formatDate } from '@/lib/utils';
 
 export default function Page() {
@@ -277,11 +278,7 @@ export default function Page() {
             {task.status.name === 'in_progress' && (
               <Button onClick={finishTask} className="min-w-[160px]">{t('tasks.finish')}</Button>
             )}
-            <label className="inline-flex items-center gap-2 text-xs font-medium text-accent cursor-pointer">
-              <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" disabled={uploading}
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.currentTarget.value = ''; }} />
-              📎 {uploading ? t('tasks.uploading') : t('tasks.uploadFile')}
-            </label>
+            <UploadMenu onPick={uploadFile} uploading={uploading} label={t('tasks.uploadFile')} variant="link" />
           </div>
         )}
 
@@ -344,11 +341,9 @@ export default function Page() {
               <TabsContent value="attachments">
                 <Card className="mt-3"><CardContent>
                   {can('attachments', 'upload') && (
-                    <label className="inline-flex items-center gap-2 text-xs font-medium text-white bg-primary rounded-md px-3 py-2 cursor-pointer mb-3">
-                      <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" disabled={uploading}
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.currentTarget.value = ''; }} />
-                      📎 {uploading ? t('tasks.uploading') : t('tasks.addAttachment')}
-                    </label>
+                    <div className="mb-3">
+                      <UploadMenu onPick={uploadFile} uploading={uploading} label={t('tasks.addAttachment')} variant="button" />
+                    </div>
                   )}
                   {attachments?.map((a: any) => {
                     const isImg = (a.mime_type || '').startsWith('image/');

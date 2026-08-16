@@ -94,6 +94,7 @@ export const translations = {
       addAttachment: 'Add attachment', download: 'Download', myTask: 'My Task',
       actStatus: 'changed the status', actCreated: 'created the task', actAttachment: 'added an attachment',
       actAttachmentRemoved: 'removed an attachment', actAssignee: 'changed the assignee', actComment: 'added a comment',
+      takePhoto: 'Camera', fromGallery: 'Photo Gallery', fromFiles: 'Files', chooseSource: 'Add photo or file',
     },
     notifications: {
       title: 'Notifications', markAllRead: 'Mark All Read', noNotifications: 'No notifications',
@@ -217,6 +218,7 @@ export const translations = {
       addAttachment: 'إضافة مرفق', download: 'تنزيل', myTask: 'مهمتي',
       actStatus: 'غيّر الحالة', actCreated: 'أنشأ المهمة', actAttachment: 'أضاف مرفقاً',
       actAttachmentRemoved: 'أزال مرفقاً', actAssignee: 'غيّر المكلّف', actComment: 'أضاف تعليقاً',
+      takePhoto: 'الكاميرا', fromGallery: 'معرض الصور', fromFiles: 'الملفات', chooseSource: 'إضافة صورة أو ملف',
     },
     notifications: {
       title: 'الإشعارات', markAllRead: 'تعليم الكل كمقروء', noNotifications: 'لا توجد إشعارات',
